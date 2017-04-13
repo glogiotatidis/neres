@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import re
 import os
-import requests
 from six.moves.http_cookiejar import LWPCookieJar
 
 import config
 import urls
+import session
 
-session = requests.Session()
+session = session.Session()
 session.cookies = LWPCookieJar(config.COOKIEJAR)
 
 
@@ -71,3 +71,16 @@ def get_monitors():
     data = sorted(data, key=lambda x: x['name'])
 
     return data
+
+
+@requires_login
+def delete_monitor(monitor):
+    response = session.get(urls.MONITOR.format(monitor))
+    response.raise_for_status()
+    headers = {
+        'Referer': response.url,
+    }
+
+    response = session.delete(urls.MONITOR.format(monitor),
+                              headers=headers)
+    response.raise_for_status()

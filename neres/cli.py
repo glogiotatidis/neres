@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import click
-import requests
 import humanize
-from decouple import config
 from colorclass import Color, Windows
 
 import newrelic
+
+
+@click.command()
+@click.argument('monitor')
+def delete_monitor(monitor):
+    newrelic.delete_monitor(monitor)
 
 
 @click.command()
@@ -84,6 +87,7 @@ def main():
 
 
 main.add_command(list_monitors, name='list-monitors')
+main.add_command(delete_monitor, name='delete-monitor')
 
 
 if __name__ == "__main__":
