@@ -6,17 +6,22 @@ import humanize
 from colorclass import Color, Windows
 
 import newrelic
+from spinner import Spinner
 
 
 @click.command()
 @click.argument('monitor')
 def delete_monitor(monitor):
-    newrelic.delete_monitor(monitor)
+    with Spinner('Deleting monitor {}: '.format(monitor), remove_message=False):
+        newrelic.delete_monitor(monitor)
+    print(Color(u'{autogreen}OK{/autogreen}'))
 
 
 @click.command()
 def list_monitors():
-    monitors = newrelic.get_monitors()
+    with Spinner('Fetching monitors: '):
+        monitors = newrelic.get_monitors()
+
     data = [[
         '#',
         'H',
