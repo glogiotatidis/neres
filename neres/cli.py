@@ -4,9 +4,42 @@
 import click
 import humanize
 from colorclass import Color, Windows
+from terminaltables import SingleTable
 
 import newrelic
 from spinner import Spinner
+
+
+@click.command()
+@click.argument('monitor')
+def get_monitor(monitor):
+    with Spinner('Fetching monitor: '):
+        monitor = newrelic.get_monitor(monitor)
+
+    status = monitor['status'].lower()
+    if status in ('muted', 'disabled'):
+        status = Color(u'{autoyellow}❢{/autoyellow}')
+    else:
+        status = Color(u'{autogreen}✔{/autogreen}')
+
+    data = [
+        ['Monitor', monitor['id']],
+        ['Status', status],
+        ['Name', monitor['name']],
+        ['URI', monitor['uri']],
+        ['Type', monitor['type']],
+        ['Locations', ', '.join(monitor['locations'])],
+        ['slaThreshold', monitor['slaThreshold']],
+        ['Emails', ', '.join(monitor['emails'])],
+        ['Frequency', monitor['frequency']],
+        ['Created', monitor['createdAt']],
+        ['Modified', monitor['modifiedAt']],
+
+    ]
+
+    table = SingleTable(data)
+    table.title = Color('{autoblack}Monitor{/autoblack}')
+    print(table.table)
 
 
 @click.command()
@@ -93,6 +126,7 @@ def main():
 
 main.add_command(list_monitors, name='list-monitors')
 main.add_command(delete_monitor, name='delete-monitor')
+main.add_command(get_monitor, name='get-monitor')
 
 
 if __name__ == "__main__":

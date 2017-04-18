@@ -84,3 +84,11 @@ def delete_monitor(monitor):
     response = session.delete(urls.MONITOR.format(monitor),
                               headers=headers)
     response.raise_for_status()
+
+
+@requires_login
+def get_monitor(monitor):
+    response = session.get(urls.MONITOR.format(monitor))
+    response.raise_for_status()
+
+    return response.json()
