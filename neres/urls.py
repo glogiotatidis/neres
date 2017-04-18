@@ -8,3 +8,5 @@ ACCOUNT = ('https://synthetics.newrelic.com/'
            'accounts/{}/info.json'.format(config.ACCOUNT))
 MONITOR = ('https://synthetics.newrelic.com/'
            'accounts/{}/monitors/'.format(config.ACCOUNT) + '{}.json')
+MONITOR_LOCATIONS = ('https://synthetics.newrelic.com/'
+                     'accounts/{}/locations/list.json'.format(config.ACCOUNT))

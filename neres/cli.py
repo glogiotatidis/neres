@@ -51,6 +51,45 @@ def delete_monitor(monitor):
 
 
 @click.command()
+def list_locations():
+    with Spinner('Fetching locations: '):
+        locations = newrelic.get_locations()
+
+    data = [[
+        '#',
+        'City',
+        'Continent',
+        'Code',
+        'Availability',
+        'Accessibility',
+    ]]
+
+    for number, location in enumerate(locations.values()):
+        available = Color(u'{autogreen}✔{/autogreen}')
+        if not location['available']:
+            Color(u'{autored}✖{/autored}')
+
+        private = 'Private' if location['private'] else 'Public'
+
+        data.append([
+            number,
+            location['label'],
+            location['continent'],
+            location['name'],
+            available,
+            private,
+        ])
+
+    table = SingleTable(data)
+    table.title = Color('{autoblack}Locations{/autoblack}')
+
+    for i in [0, 4, 5]:
+        table.justify_columns[i] = 'right'
+
+    print(table.table)
+
+
+@click.command()
 def list_monitors():
     with Spinner('Fetching monitors: '):
         monitors = newrelic.get_monitors()
@@ -101,20 +140,17 @@ def list_monitors():
             len(monitor['locations']),
             len(monitor['emails'])
         ])
-    from terminaltables import SingleTable
+
     table = SingleTable(data)
     table.title = Color('{autoblack}Monitors{/autoblack}')
-    table.justify_columns[0] = 'right'
-    table.justify_columns[1] = 'center'
-    table.justify_columns[2] = 'center'
+
+    for i in [1, 2]:
+        table.justify_columns[i] = 'center'
+
+    for i in [0, 4, 5, 6, 7, 8, 9, 10]:
+        table.justify_columns[i] = 'right'
+
     table.justify_columns[3] = 'left'
-    table.justify_columns[4] = 'right'
-    table.justify_columns[5] = 'right'
-    table.justify_columns[6] = 'right'
-    table.justify_columns[7] = 'right'
-    table.justify_columns[8] = 'right'
-    table.justify_columns[9] = 'right'
-    table.justify_columns[10] = 'right'
 
     print(table.table)
 
@@ -124,7 +160,9 @@ def main():
     newrelic.initialize_cookiejar()
 
 
+
 main.add_command(list_monitors, name='list-monitors')
+main.add_command(list_locations, name='list-locations')
 main.add_command(delete_monitor, name='delete-monitor')
 main.add_command(get_monitor, name='get-monitor')
 

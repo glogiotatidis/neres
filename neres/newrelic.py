@@ -86,6 +86,16 @@ def delete_monitor(monitor):
     response.raise_for_status()
 
 
+
+
+@requires_login
+def get_locations():
+    response = session.get(urls.MONITOR_LOCATIONS)
+    response.raise_for_status()
+
+    return response.json()
+
+
 @requires_login
 def get_monitor(monitor):
     response = session.get(urls.MONITOR.format(monitor))
