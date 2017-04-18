@@ -54,7 +54,7 @@ def login():
         'authenticity_token': token,
         'commit': 'Sign in'
     }
-    response = session.post(urls.LOGIN, data=payload)
+    response = session.post(urls.LOGIN, data=payload, add_xsrf_token=False)
     response.raise_for_status()
     if 'login_email' in response.content:
         raise Exception('Login Failed')

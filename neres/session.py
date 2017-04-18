@@ -24,7 +24,8 @@ class Session(requests.Session):
         return response
 
     def post(self, *args, **kwargs):
-        kwargs = self._set_xsrf_headers(kwargs)
+        if kwargs.pop('add_xsrf_token', True):
+            kwargs = self._set_xsrf_headers(kwargs)
         return super(Session, self).post(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
