@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import sys
 
 import click
 import humanize
@@ -90,7 +91,20 @@ def get_monitor(monitor, raw):
 
 @click.command()
 @click.argument('monitor')
-def delete_monitor(monitor):
+@click.option('--confirm', default=None)
+def delete_monitor(monitor, confirm):
+    if not confirm:
+        confirm = click.prompt('''
+ ! WARNING: Destructive Action
+ ! This command will destroy the monitor:\n\t{monitor}
+ ! To proceed, type "{monitor}" or
+   re-run this command with --confirm={monitor}
+
+'''.format(monitor=monitor), prompt_suffix='> ')
+    if confirm.strip() != monitor:
+        print('abort')
+        sys.exit(1)
+
     with Spinner('Deleting monitor {}: '.format(monitor), remove_message=False):
         newrelic.delete_monitor(monitor)
     print(Color(u'{autogreen}OK{/autogreen}'))
