@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 import re
 import os
+
+import json
+import six
+import requests
 from six.moves.http_cookiejar import LWPCookieJar
 
 import config
@@ -75,17 +79,15 @@ def get_monitors():
 
 @requires_login
 def delete_monitor(monitor):
-    response = session.get(urls.MONITOR.format(monitor))
+    response = session.get(urls.MONITOR_JSON.format(monitor))
     response.raise_for_status()
     headers = {
         'Referer': response.url,
     }
 
-    response = session.delete(urls.MONITOR.format(monitor),
+    response = session.delete(urls.MONITOR_JSON.format(monitor),
                               headers=headers)
     response.raise_for_status()
-
-
 
 
 @requires_login
@@ -98,7 +100,67 @@ def get_locations():
 
 @requires_login
 def get_monitor(monitor):
-    response = session.get(urls.MONITOR.format(monitor))
+    response = session.get(urls.MONITOR_JSON.format(monitor))
     response.raise_for_status()
 
     return response.json()
+
+
+@requires_login
+def create_monitor(name, uri, frequency, locations, emails=[],
+                   validation_string='', bypass_head_request=False,
+                   verify_ssl=False, redirect_is_failure=False,
+                   slaThreshold=7):
+    if isinstance(locations, six.string_types):
+        locations = [locations]
+
+    if isinstance(emails, six.string_types):
+        emails = [emails]
+
+    if validation_string and not bypass_head_request:
+        raise Exception('Response validation requires to bypass HEAD request.')
+
+    response = session.get(urls.NEW_MONITOR)
+    response.raise_for_status()
+    headers = {
+        'Referer': response.url,
+        'Content-Type': 'application/json;charset=utf-8',
+    }
+
+    metadata = {}
+    if bypass_head_request:
+        metadata['nr.synthetics.metadata.job.options.simple.bypass.head'] = True
+    if validation_string:
+        metadata['nr.synthetics.metadata.job.options.response-validation'] = validation_string
+    if verify_ssl:
+        metadata['nr.synthetics.metadata.job.options.tlsValidation'] = True
+        metadata['nr.synthetics.monitor.tls-validation'] = True
+    if redirect_is_failure:
+        metadata['nr.synthetics.metadata.job.options.redirectIsFailure'] = True
+        metadata['nr.synthetics.metadata.job.options.simple.redirect.is.failure'] = True
+
+    data = {
+        'accountId': config.ACCOUNT,
+        'name': name,
+        'type': 'SIMPLE',
+        'frequency': frequency,
+        'uri': uri,
+        'status': 'ENABLED',
+        'slaThreshold': slaThreshold,
+        'locations': locations,
+        'conditions': [],
+        'metadata': metadata,
+        'emails': emails,
+    }
+    data = json.dumps(data)
+    response = session.post(urls.MONITORS, data=data, headers=headers)
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        try:
+            error = response.json()['error']
+        except (ValueError, KeyError):
+            error = 'Bad request'
+        return (1, error)
+
+    return (0, urls.MONITOR.format(response.json()['id']))

@@ -11,6 +11,35 @@ from spinner import Spinner
 
 
 @click.command()
+@click.argument('name')
+@click.argument('uri')
+@click.option('--location', default=['AWS_US_WEST_1'], multiple=True)
+@click.option('--frequency', default=10)
+@click.option('--email', default=[''], multiple=True)
+@click.option('--validation-string', default='')
+@click.option('--bypass-head-request', default=False, is_flag=True)
+@click.option('--verify-ssl', default=False, is_flag=True)
+@click.option('--redirect-is-failure', default=False, is_flag=True)
+@click.option('--sla-threshold', default=7)
+def add_monitor(name, uri, location, frequency, email, validation_string,
+                bypass_head_request, verify_ssl, redirect_is_failure, sla_threshold):
+    if validation_string:
+        # We must bypass head request we're to validate string.
+        bypass_head_request = True
+
+    with Spinner('Creating monitor: ', remove_message=False):
+        status, message = newrelic.create_monitor(name, uri, frequency, location, email,
+                                                  validation_string, bypass_head_request,
+                                                  verify_ssl, redirect_is_failure,
+                                                  sla_threshold)
+
+    if status == 0:
+        print(Color(u'{autogreen}OK {/autogreen}') + message)
+    else:
+        print(Color(u'{autored}Error {/autored}') + message)
+
+
+@click.command()
 @click.argument('monitor')
 def get_monitor(monitor):
     with Spinner('Fetching monitor: '):
@@ -160,11 +189,11 @@ def main():
     newrelic.initialize_cookiejar()
 
 
-
 main.add_command(list_monitors, name='list-monitors')
 main.add_command(list_locations, name='list-locations')
 main.add_command(delete_monitor, name='delete-monitor')
 main.add_command(get_monitor, name='get-monitor')
+main.add_command(add_monitor, name='add-monitor')
 
 
 if __name__ == "__main__":
