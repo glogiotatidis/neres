@@ -21,17 +21,29 @@ from spinner import Spinner
 @click.option('--verify-ssl', default=False, is_flag=True)
 @click.option('--redirect-is-failure', default=False, is_flag=True)
 @click.option('--sla-threshold', default=7)
+@click.option('--raw', default=False, is_flag=True)
 def add_monitor(name, uri, location, frequency, email, validation_string,
-                bypass_head_request, verify_ssl, redirect_is_failure, sla_threshold):
+                bypass_head_request, verify_ssl, redirect_is_failure, sla_threshold, raw):
     if validation_string:
         # We must bypass head request we're to validate string.
         bypass_head_request = True
 
-    with Spinner('Creating monitor: ', remove_message=False):
-        status, message = newrelic.create_monitor(name, uri, frequency, location, email,
-                                                  validation_string, bypass_head_request,
-                                                  verify_ssl, redirect_is_failure,
-                                                  sla_threshold)
+    with Spinner('Creating monitor: ', remove_message=raw):
+        status, message, monitor = newrelic.create_monitor(name, uri, frequency, location, email,
+                                                           validation_string, bypass_head_request,
+                                                           verify_ssl, redirect_is_failure,
+                                                           sla_threshold)
+
+    if raw:
+        print(monitor)
+        return
+
+    if status == 0:
+        print(Color(u'{autogreen}OK {/autogreen}') + message)
+    else:
+        print(Color(u'{autored}Error {/autored}') + message)
+
+
 
     if status == 0:
         print(Color(u'{autogreen}OK {/autogreen}') + message)
@@ -41,9 +53,14 @@ def add_monitor(name, uri, location, frequency, email, validation_string,
 
 @click.command()
 @click.argument('monitor')
-def get_monitor(monitor):
+@click.option('--raw', default=False, is_flag=True)
+def get_monitor(monitor, raw):
     with Spinner('Fetching monitor: '):
         monitor = newrelic.get_monitor(monitor)
+
+    if raw:
+        print(monitor)
+        return
 
     status = monitor['status'].lower()
     if status in ('muted', 'disabled'):
@@ -80,9 +97,14 @@ def delete_monitor(monitor):
 
 
 @click.command()
-def list_locations():
+@click.option('--raw', default=False, is_flag=True)
+def list_locations(raw):
     with Spinner('Fetching locations: '):
         locations = newrelic.get_locations()
+
+    if raw:
+        print(locations)
+        return
 
     data = [[
         '#',
@@ -119,9 +141,14 @@ def list_locations():
 
 
 @click.command()
-def list_monitors():
+@click.option('--raw', default=False, is_flag=True)
+def list_monitors(raw):
     with Spinner('Fetching monitors: '):
         monitors = newrelic.get_monitors()
+
+    if raw:
+        print(monitors)
+        return
 
     data = [[
         '#',
