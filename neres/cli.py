@@ -8,7 +8,6 @@ import subprocess
 
 import click
 import humanize
-from colorclass import Color, Windows
 from terminaltables import SingleTable
 
 import newrelic
@@ -45,9 +44,11 @@ def add_monitor(name, uri, location, frequency, email, validation_string,
         return
 
     if status == 0:
-        print(Color(u'{autogreen}OK {/autogreen}') + message)
+        print(click.style(u'OK', fg='green', bold=True))
+        print('Monitor: ' + message)
     else:
-        print(Color(u'{autored}Error {/autored}') + message)
+        print(click.style(u'Error', fg='red', bold=True))
+        raise click.ClickException(message)
 
 
 @click.command()
@@ -93,9 +94,11 @@ def update_monitor(monitor, **kwargs):
         return
 
     if status == 0:
-        print(Color(u'{autogreen}OK {/autogreen}') + message)
+        print(click.style(u'OK', fg='green', bold=True))
+        print('Monitor: ' + message)
     else:
-        print(Color(u'{autored}Error {/autored}') + message)
+        print(click.style(u'Error', fg='red', bold=True))
+        raise click.ClickException(message)
 
 
 @click.command()
@@ -111,9 +114,9 @@ def get_monitor(monitor, raw):
 
     status = monitor['status'].lower()
     if status in ('muted', 'disabled'):
-        status = Color(u'{autoyellow}❢{/autoyellow}')
+        status = click.style(u'❢', fg='yellow')
     else:
-        status = Color(u'{autogreen}✔{/autogreen}')
+        status = click.style(u'✔', fg='green')
 
     data = [
         ['Monitor', monitor['id']],
@@ -131,7 +134,7 @@ def get_monitor(monitor, raw):
     ]
 
     table = SingleTable(data)
-    table.title = Color('{autoblack}Monitor{/autoblack}')
+    table.title = click.style('Monitor', fg='black')
     print(table.table)
 
 
@@ -153,7 +156,7 @@ def delete_monitor(monitor, confirm):
 
     with Spinner('Deleting monitor {}: '.format(monitor), remove_message=False):
         newrelic.delete_monitor(monitor)
-    print(Color(u'{autogreen}OK{/autogreen}'))
+    print(click.style(u'OK', fg='green', bold=True))
 
 
 @click.command()
@@ -176,9 +179,9 @@ def list_locations(raw):
     ]]
 
     for number, location in enumerate(locations.values()):
-        available = Color(u'{autogreen}✔{/autogreen}')
+        available = click.style(u'✔', fg='green')
         if not location['available']:
-            Color(u'{autored}✖{/autored}')
+            click.style(u'✖', fg='red')
 
         private = 'Private' if location['private'] else 'Public'
 
@@ -192,7 +195,7 @@ def list_locations(raw):
         ])
 
     table = SingleTable(data)
-    table.title = Color('{autoblack}Locations{/autoblack}')
+    table.title = click.style('Locations', fg='black')
 
     for i in [0, 4, 5]:
         table.justify_columns[i] = 'right'
@@ -234,18 +237,18 @@ def list_monitors(ids_only, raw):
     for monitor in monitors:
         success_ratio = monitor.get('success_ratio', 0)
         if success_ratio == 1.0:
-            health = Color(u'{autogreen}✔{/autogreen}')
+            health = click.style(u'✔', fg='green')
         elif success_ratio > 0.95:
-            health = Color(u'{autoyellow}❢{/autoyellow}')
+            health = click.style(u'❢', fg='yellow')
         else:
-            health = Color(u'{autored}✖{/autored}')
+            health = click.style(u'✖', fg='red')
         monitor['health'] = health
 
         status = monitor['status'].lower()
         if status in ('muted', 'disabled'):
-            status = Color(u'{autoyellow}❢{/autoyellow}')
+            status = click.style(u'❢', fg='yellow')
         else:
-            status = Color(u'{autogreen}✔{/autogreen}')
+            status = click.style(u'✔', fg='green')
         monitor['status'] = status
 
     for number, monitor in enumerate(monitors, 1):
@@ -266,7 +269,7 @@ def list_monitors(ids_only, raw):
         ])
 
     table = SingleTable(data)
-    table.title = Color('{autoblack}Monitors{/autoblack}')
+    table.title = click.style('Monitors', fg='black')
 
     for i in [1, 2]:
         table.justify_columns[i] = 'center'
@@ -307,5 +310,4 @@ main.add_command(open_monitor, name='open')
 
 if __name__ == "__main__":
     # Does nothing if not on Windows.
-    Windows.enable(auto_colors=True, reset_atexit=True)
     main()
