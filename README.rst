@@ -28,8 +28,8 @@ neres
 Features
 --------
 
+* Create, update and list monitors
 * Works with Synthetics Lite
-* Lists monitors
 
 Credits
 ---------
