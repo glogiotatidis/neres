@@ -180,6 +180,7 @@ def list_monitors(ids_only, raw):
         'H',
         'S',
         'Name',
+        'ID',
         'Success\nRate',
         'Avg Size',
         'Load time\n(50th PR)',
@@ -213,6 +214,7 @@ def list_monitors(ids_only, raw):
             monitor['health'],
             monitor['status'],
             monitor['name'],
+            monitor['id'],
             '{:.1f}%'.format(100 * monitor.get('success_ratio', 0)),
             humanize.naturalsize(monitor.get('avg_size', 0), binary=True),
             '{:.1f} ms'.format(monitor.get('load_time_50th_pr', 0)),
@@ -228,7 +230,7 @@ def list_monitors(ids_only, raw):
     for i in [1, 2]:
         table.justify_columns[i] = 'center'
 
-    for i in [0, 4, 5, 6, 7, 8, 9, 10]:
+    for i in [0, 5, 6, 7, 8, 9, 10, 11]:
         table.justify_columns[i] = 'right'
 
     table.justify_columns[3] = 'left'
