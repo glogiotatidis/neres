@@ -155,13 +155,19 @@ def list_locations(raw):
 
 
 @click.command()
+@click.option('--ids-only', default=False, is_flag=True)
 @click.option('--raw', default=False, is_flag=True)
-def list_monitors(raw):
+def list_monitors(ids_only, raw):
     with Spinner('Fetching monitors: '):
         monitors = newrelic.get_monitors()
 
     if raw:
         print(monitors)
+        return
+
+    if ids_only:
+        for monitor in monitors:
+            print(monitor['id'])
         return
 
     data = [[
