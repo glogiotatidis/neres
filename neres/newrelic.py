@@ -107,6 +107,90 @@ def get_monitor(monitor):
 
 
 @requires_login
+def update_monitor(monitor, *args, **kwargs):
+    data = get_monitor(monitor)
+    for prop in ['name', 'uri', 'frequency', 'locations', 'slaThreshold']:
+        value = kwargs.get(prop, None)
+        if value:
+            data[prop] = value
+
+    for prop in ['emails', 'locations']:
+        if kwargs.get('clear_{}'.format(prop)):
+            data[prop] = []
+
+        values = kwargs.get('add_{}'.format(prop))
+        if values:
+            if isinstance(values, six.string_types):
+                values = [values]
+            data[prop] = list(set(data[prop] + list(values)))
+
+        values = kwargs.get('remove_{}'.format(prop))
+        if values:
+            if isinstance(values, six.string_types):
+                prop = [values]
+            data[prop] = list(set(data[prop]) - set(values))
+
+    _construct_metadata(
+        validation_string=kwargs.get('validation_string'),
+        bypass_head_request=kwargs.get('bypass_head_request'),
+        verify_ssl=kwargs.get('verify_ssl'),
+        redirect_is_failure=kwargs.get('redirect_is_failure'),
+        metadata=data['metadata'])
+
+    headers = {
+        'Referer': urls.MONITOR.format(monitor),
+        'Content-Type': 'application/json;charset=utf-8',
+    }
+
+    url = urls.MONITOR_JSON.format(monitor)
+    response = session.put(url, data=json.dumps(data), headers=headers)
+
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        try:
+            error = response.json()['error']
+        except (ValueError, KeyError):
+            error = 'Bad request'
+        return (1, error, {})
+
+    return (0, urls.MONITOR.format(response.json()['id']), response.json())
+
+
+def _construct_metadata(validation_string=None, bypass_head_request=None,
+                        verify_ssl=None, redirect_is_failure=None,
+                        metadata=None):
+    if metadata is None:
+        metadata = {}
+
+    if bypass_head_request is True:
+        metadata['nr.synthetics.metadata.job.options.simple.bypass.head'] = True
+    elif bypass_head_request is False:
+        metadata.pop('nr.synthetics.metadata.job.options.simple.bypass.head', None)
+
+    if validation_string:
+        metadata['nr.synthetics.metadata.job.options.response-validation'] = validation_string
+    elif validation_string is False:
+        metadata.pop('nr.synthetics.metadata.job.options.response-validation', None)
+
+    if verify_ssl is True:
+        metadata['nr.synthetics.metadata.job.options.tlsValidation'] = True
+        metadata['nr.synthetics.monitor.tls-validation'] = True
+    elif verify_ssl is False:
+        metadata.pop('nr.synthetics.metadata.job.options.tlsValidation', None)
+        metadata.pop('nr.synthetics.monitor.tls-validation', None)
+
+    if redirect_is_failure is True:
+        metadata['nr.synthetics.metadata.job.options.redirectIsFailure'] = True
+        metadata['nr.synthetics.metadata.job.options.simple.redirect.is.failure'] = True
+    elif redirect_is_failure is False:
+        metadata.pop('nr.synthetics.metadata.job.options.redirectIsFailure', None)
+        metadata.pop('nr.synthetics.metadata.job.options.simple.redirect.is.failure', None)
+
+    return metadata
+
+
+@requires_login
 def create_monitor(name, uri, frequency, locations, emails=[],
                    validation_string='', bypass_head_request=False,
                    verify_ssl=False, redirect_is_failure=False,
@@ -127,18 +211,8 @@ def create_monitor(name, uri, frequency, locations, emails=[],
         'Content-Type': 'application/json;charset=utf-8',
     }
 
-    metadata = {}
-    if bypass_head_request:
-        metadata['nr.synthetics.metadata.job.options.simple.bypass.head'] = True
-    if validation_string:
-        metadata['nr.synthetics.metadata.job.options.response-validation'] = validation_string
-    if verify_ssl:
-        metadata['nr.synthetics.metadata.job.options.tlsValidation'] = True
-        metadata['nr.synthetics.monitor.tls-validation'] = True
-    if redirect_is_failure:
-        metadata['nr.synthetics.metadata.job.options.redirectIsFailure'] = True
-        metadata['nr.synthetics.metadata.job.options.simple.redirect.is.failure'] = True
-
+    metadata = _construct_metadata(validation_string, bypass_head_request,
+                                   verify_ssl, redirect_is_failure)
     data = {
         'accountId': config.ACCOUNT,
         'name': name,
@@ -154,6 +228,7 @@ def create_monitor(name, uri, frequency, locations, emails=[],
     }
     data = json.dumps(data)
     response = session.post(urls.MONITORS, data=data, headers=headers)
+
     try:
         response.raise_for_status()
     except requests.exceptions.HTTPError:
@@ -161,6 +236,6 @@ def create_monitor(name, uri, frequency, locations, emails=[],
             error = response.json()['error']
         except (ValueError, KeyError):
             error = 'Bad request'
-        return (1, error)
+        return (1, error, {})
 
-    return (0, urls.MONITOR.format(response.json()['id']))
+    return (0, urls.MONITOR.format(response.json()['id']), response.json())

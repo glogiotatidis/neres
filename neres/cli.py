@@ -50,6 +50,47 @@ def add_monitor(name, uri, location, frequency, email, validation_string,
         print(Color(u'{autored}Error {/autored}') + message)
 
 
+@click.command()
+@click.argument('monitor')
+@click.option('--name', default=None)
+@click.option('--uri', default=None)
+@click.option('--add-location', 'add_locations', default=None, multiple=True)
+@click.option('--clear-locations', default=False, is_flag=True)
+@click.option('--remove-location', 'remove_locations', default=None, multiple=True)
+@click.option('--add-email', 'add_emails', default=None, multiple=True)
+@click.option('--remove-email', 'remove_emails', default=None, multiple=True)
+@click.option('--clear-emails', default=False, is_flag=True)
+@click.option('--frequency', default=None)
+@click.option('--sla-threshold', 'slaThreshold', default=None)
+@click.option('--validation-string', default=None)
+@click.option('--no-validation-string', default=None, is_flag=True)
+@click.option('--bypass-head-request/--no-bypass-head-request', default=None, is_flag=True)
+@click.option('--verify-ssl/--no-verify-ssl', default=None, is_flag=True)
+@click.option('--redirect-is-failure/--no-redirect-is-failure', default=None, is_flag=True)
+@click.option('--raw', default=False, is_flag=True)
+def update_monitor(monitor, **kwargs):
+    if kwargs['no_validation_string']:
+        if kwargs['validation_string']:
+            raise click.ClickException(
+                'Flags --validation-string and --no-validation-string cannot be combined')
+
+        kwargs['validation_string'] = False
+
+    if kwargs['validation_string']:
+        # We must bypass head request we're to validate string.
+        kwargs['bypass_head_request'] = True
+
+    if kwargs['clear_locations'] and not kwargs['add_locations']:
+        raise click.ClickException(
+            'You need at least one location. Combine --clear-locations'
+            'with --add-location.')
+
+    with Spinner('Updating monitor: ', remove_message=kwargs['raw']):
+        status, message, monitor = newrelic.update_monitor(monitor, **kwargs)
+
+    if kwargs['raw']:
+        print(monitor)
+        return
 
     if status == 0:
         print(Color(u'{autogreen}OK {/autogreen}') + message)
@@ -260,6 +301,7 @@ main.add_command(list_locations, name='list-locations')
 main.add_command(delete_monitor, name='delete-monitor')
 main.add_command(get_monitor, name='get-monitor')
 main.add_command(add_monitor, name='add-monitor')
+main.add_command(update_monitor, name='update-monitor')
 main.add_command(open_monitor, name='open')
 
 
