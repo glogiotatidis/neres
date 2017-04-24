@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+import os
+import platform
+import subprocess
+
 
 import click
 import humanize
@@ -8,6 +12,7 @@ from colorclass import Color, Windows
 from terminaltables import SingleTable
 
 import newrelic
+import urls
 from spinner import Spinner
 
 
@@ -231,6 +236,18 @@ def list_monitors(ids_only, raw):
     print(table.table)
 
 
+@click.command()
+@click.argument('monitor')
+def open_monitor(monitor):
+    url = urls.MONITOR.format(monitor)
+    if platform.system() == 'Windows':
+        os.startfile(url)
+    elif platform.system() == 'Darwin':
+        subprocess.Popen(['open', url])
+    else:
+        subprocess.Popen(['xdg-open', url])
+
+
 @click.group()
 def main():
     newrelic.initialize_cookiejar()
@@ -241,6 +258,7 @@ main.add_command(list_locations, name='list-locations')
 main.add_command(delete_monitor, name='delete-monitor')
 main.add_command(get_monitor, name='get-monitor')
 main.add_command(add_monitor, name='add-monitor')
+main.add_command(open_monitor, name='open')
 
 
 if __name__ == "__main__":
