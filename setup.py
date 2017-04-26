@@ -37,7 +37,7 @@ setup(
                  'neres'},
     entry_points={
         'console_scripts': [
-            'neres=neres.cli:main'
+            'neres=neres.cli:cli'
         ]
     },
     include_package_data=True,

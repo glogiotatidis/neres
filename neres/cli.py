@@ -27,17 +27,18 @@ from spinner import Spinner
 @click.option('--redirect-is-failure', default=False, is_flag=True)
 @click.option('--sla-threshold', default=7)
 @click.option('--raw', default=False, is_flag=True)
-def add_monitor(name, uri, location, frequency, email, validation_string,
+@click.pass_context
+def add_monitor(ctx, name, uri, location, frequency, email, validation_string,
                 bypass_head_request, verify_ssl, redirect_is_failure, sla_threshold, raw):
     if validation_string:
         # We must bypass head request we're to validate string.
         bypass_head_request = True
 
     with Spinner('Creating monitor: ', remove_message=raw):
-        status, message, monitor = newrelic.create_monitor(name, uri, frequency, location, email,
-                                                           validation_string, bypass_head_request,
-                                                           verify_ssl, redirect_is_failure,
-                                                           sla_threshold)
+        status, message, monitor = newrelic.create_monitor(
+            ctx.obj['ACCOUNT'], name, uri, frequency, location, email,
+            validation_string, bypass_head_request, verify_ssl, redirect_is_failure,
+            sla_threshold)
 
     if raw:
         print(monitor)
@@ -69,7 +70,8 @@ def add_monitor(name, uri, location, frequency, email, validation_string,
 @click.option('--verify-ssl/--no-verify-ssl', default=None, is_flag=True)
 @click.option('--redirect-is-failure/--no-redirect-is-failure', default=None, is_flag=True)
 @click.option('--raw', default=False, is_flag=True)
-def update_monitor(monitor, **kwargs):
+@click.pass_context
+def update_monitor(ctx, monitor, **kwargs):
     if kwargs['no_validation_string']:
         if kwargs['validation_string']:
             raise click.ClickException(
@@ -87,7 +89,7 @@ def update_monitor(monitor, **kwargs):
             'with --add-location.')
 
     with Spinner('Updating monitor: ', remove_message=kwargs['raw']):
-        status, message, monitor = newrelic.update_monitor(monitor, **kwargs)
+        status, message, monitor = newrelic.update_monitor(ctx.obj['ACCOUNT'], monitor, **kwargs)
 
     if kwargs['raw']:
         print(monitor)
@@ -104,9 +106,10 @@ def update_monitor(monitor, **kwargs):
 @click.command()
 @click.argument('monitor')
 @click.option('--raw', default=False, is_flag=True)
-def get_monitor(monitor, raw):
+@click.pass_context
+def get_monitor(ctx, monitor, raw):
     with Spinner('Fetching monitor: '):
-        monitor = newrelic.get_monitor(monitor)
+        monitor = newrelic.get_monitor(ctx.obj['ACCOUNT'], monitor)
 
     if raw:
         print(monitor)
@@ -141,11 +144,12 @@ def get_monitor(monitor, raw):
 @click.command()
 @click.argument('monitor')
 @click.option('--confirm', default=None)
-def delete_monitor(monitor, confirm):
+@click.pass_context
+def delete_monitor(ctx, monitor, confirm):
     if not confirm:
         confirm = click.prompt('''
  ! WARNING: Destructive Action
- ! This command will destroy the monitor:\n\t{monitor}
+ ! This command will destroy the monitor: {monitor}
  ! To proceed, type "{monitor}" or
    re-run this command with --confirm={monitor}
 
@@ -155,15 +159,16 @@ def delete_monitor(monitor, confirm):
         sys.exit(1)
 
     with Spinner('Deleting monitor {}: '.format(monitor), remove_message=False):
-        newrelic.delete_monitor(monitor)
+        newrelic.delete_monitor(ctx.obj['ACCOUNT'], monitor)
     print(click.style(u'OK', fg='green', bold=True))
 
 
 @click.command()
 @click.option('--raw', default=False, is_flag=True)
-def list_locations(raw):
+@click.pass_context
+def list_locations(ctx, raw):
     with Spinner('Fetching locations: '):
-        locations = newrelic.get_locations()
+        locations = newrelic.get_locations(ctx.obj['ACCOUNT'])
 
     if raw:
         print(locations)
@@ -206,9 +211,10 @@ def list_locations(raw):
 @click.command()
 @click.option('--ids-only', default=False, is_flag=True)
 @click.option('--raw', default=False, is_flag=True)
-def list_monitors(ids_only, raw):
+@click.pass_context
+def list_monitors(ctx, ids_only, raw):
     with Spinner('Fetching monitors: '):
-        monitors = newrelic.get_monitors()
+        monitors = newrelic.get_monitors(ctx.obj['ACCOUNT'])
 
     if raw:
         print(monitors)
@@ -284,8 +290,9 @@ def list_monitors(ids_only, raw):
 
 @click.command()
 @click.argument('monitor')
-def open_monitor(monitor):
-    url = urls.MONITOR.format(monitor)
+@click.pass_context
+def open_monitor(ctx, monitor):
+    url = urls.MONITOR.format(account=ctx.obj['ACCOUNT'], monitor=monitor)
     if platform.system() == 'Windows':
         os.startfile(url)
     elif platform.system() == 'Darwin':
@@ -294,20 +301,83 @@ def open_monitor(monitor):
         subprocess.Popen(['xdg-open', url])
 
 
+@click.command()
+@click.option('--raw', is_flag=True, default=False)
+def list_accounts(raw):
+    with Spinner('Fetching accounts: '):
+        accounts = newrelic.get_accounts()
+
+    if raw:
+        for account in accounts:
+            print(account[0])
+
+    data = [[
+        'ID',
+        'Name'
+    ]]
+    for account in accounts:
+        data.append([account['id'], account['name']])
+
+    table = SingleTable(data)
+    table.title = click.style('Accounts', fg='black')
+    print(table.table)
+
+
+@click.command()
+@click.pass_context
+def login(ctx):
+    email = ctx.obj['EMAIL']
+    if not email:
+        email = click.prompt('Email')
+
+    password = ctx.obj['PASSWORD']
+    if not password:
+        password = click.prompt('Password', hide_input=True)
+
+    with Spinner('Logging in: ', remove_message=False):
+        newrelic.login(email, password)
+    print(click.style(u'OK', fg='green', bold=True))
+
+
 @click.group()
-def main():
-    newrelic.initialize_cookiejar()
+@click.option('--email')
+@click.option('--password')
+@click.option('--account')
+@click.option('--environment', default='newrelic')
+@click.pass_context
+def cli(ctx, email, password, account, environment):
+    cookiejar = os.path.expanduser('~/.config/neres/{}.cookies'.format(environment))
+    if not os.path.exists(os.path.dirname(cookiejar)):
+        os.makedirs(os.path.dirname(cookiejar), 0o700)
+    newrelic.initialize_cookiejar(cookiejar)
+
+    if ctx.invoked_subcommand != 'login':
+        with Spinner('Authorizing: '):
+            if not newrelic.check_if_logged_in():
+                if not all([email, password]):
+                    raise click.ClickException('Login first')
+                else:
+                    newrelic.login(email, password)
+
+        if not account and ctx.invoked_subcommand != 'list-accounts':
+            account = newrelic.get_accounts()[0]['id']
+
+    ctx.obj = {}
+    ctx.obj['ACCOUNT'] = account
+    ctx.obj['EMAIL'] = email
+    ctx.obj['PASSWORD'] = email
 
 
-main.add_command(list_monitors, name='list-monitors')
-main.add_command(list_locations, name='list-locations')
-main.add_command(delete_monitor, name='delete-monitor')
-main.add_command(get_monitor, name='get-monitor')
-main.add_command(add_monitor, name='add-monitor')
-main.add_command(update_monitor, name='update-monitor')
-main.add_command(open_monitor, name='open')
+cli.add_command(list_monitors, name='list-monitors')
+cli.add_command(list_locations, name='list-locations')
+cli.add_command(delete_monitor, name='delete-monitor')
+cli.add_command(get_monitor, name='get-monitor')
+cli.add_command(add_monitor, name='add-monitor')
+cli.add_command(update_monitor, name='update-monitor')
+cli.add_command(list_accounts, name='list-accounts')
+cli.add_command(open_monitor, name='open')
+cli.add_command(login, name='login')
 
 
 if __name__ == "__main__":
-    # Does nothing if not on Windows.
-    main()
+    cli(auto_envvar_prefix='NERES')

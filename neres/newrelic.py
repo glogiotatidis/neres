@@ -7,39 +7,33 @@ import six
 import requests
 from six.moves.http_cookiejar import LWPCookieJar
 
-import config
 import urls
 import session
 
 session = session.Session()
-session.cookies = LWPCookieJar(config.COOKIEJAR)
 
 
-def initialize_cookiejar():
-    if not os.path.exists(config.COOKIEJAR):
+def initialize_cookiejar(cookiejar):
+    session.cookies = LWPCookieJar(cookiejar)
+    if not os.path.exists(cookiejar):
         session.cookies.save()
-        os.chmod(config.COOKIEJAR, 0o600)
+        os.chmod(cookiejar, 0o600)
     else:
         session.cookies.load(ignore_discard=True)
 
 
-def requires_login(fn):
-    def wrapped(*args, **kwargs):
-        if not check_if_logged_in():
-            login()
-        return fn(*args, **kwargs)
-    return wrapped
-
-
 def check_if_logged_in():
-    response = session.get(urls.ACCOUNT, allow_redirects=False)
+    response = session.get(urls.IDLE, allow_redirects=False)
     response.raise_for_status()
     if response.status_code == 200:
         return True
     return False
 
 
-def login():
+def login(email, password):
+    if check_if_logged_in():
+        return
+
     response = session.get(urls.LOGIN)
     response.raise_for_status()
 
@@ -50,8 +44,8 @@ def login():
         Exception("Can't get CSRF token to login.")
 
     payload = {
-        'login[email]': config.EMAIL,
-        'login[password]': config.PASSWORD,
+        'login[email]': email,
+        'login[password]': password,
         'login[remember_me]': '1',
         'return_to': 'https://rpm.newrelic.com/auth/newrelic',
         'utf8': '✓',
@@ -65,9 +59,9 @@ def login():
     session.cookies.save(ignore_discard=True)
 
 
-@requires_login
-def get_monitors():
-    response = session.get(urls.MONITORS)
+def get_monitors(account):
+    url = urls.MONITORS.format(account=account)
+    response = session.get(url)
     response.raise_for_status()
     data = response.json()
 
@@ -77,38 +71,37 @@ def get_monitors():
     return data
 
 
-@requires_login
-def delete_monitor(monitor):
-    response = session.get(urls.MONITOR_JSON.format(monitor))
+def delete_monitor(account, monitor):
+    url = urls.MONITOR_JSON.format(account=account, monitor=monitor)
+    response = session.get(url)
     response.raise_for_status()
     headers = {
         'Referer': response.url,
     }
 
-    response = session.delete(urls.MONITOR_JSON.format(monitor),
-                              headers=headers)
+    url = urls.MONITOR_JSON.format(account=account, monitor=monitor)
+    response = session.delete(url, headers=headers)
     response.raise_for_status()
 
 
-@requires_login
-def get_locations():
-    response = session.get(urls.MONITOR_LOCATIONS)
-    response.raise_for_status()
-
-    return response.json()
-
-
-@requires_login
-def get_monitor(monitor):
-    response = session.get(urls.MONITOR_JSON.format(monitor))
+def get_locations(account):
+    url = urls.MONITOR_LOCATIONS.format(account=account)
+    response = session.get(url)
     response.raise_for_status()
 
     return response.json()
 
 
-@requires_login
-def update_monitor(monitor, *args, **kwargs):
-    data = get_monitor(monitor)
+def get_monitor(account, monitor):
+    url = urls.MONITOR_JSON.format(account=account, monitor=monitor)
+    response = session.get(url)
+    response.raise_for_status()
+
+    return response.json()
+
+
+def update_monitor(account, monitor, *args, **kwargs):
+    data = get_monitor(account, monitor)
     for prop in ['name', 'uri', 'frequency', 'locations', 'slaThreshold']:
         value = kwargs.get(prop, None)
         if value:
@@ -138,11 +131,11 @@ def update_monitor(monitor, *args, **kwargs):
         metadata=data['metadata'])
 
     headers = {
-        'Referer': urls.MONITOR.format(monitor),
+        'Referer': urls.MONITOR.format(account=account, monitor=monitor),
         'Content-Type': 'application/json;charset=utf-8',
     }
 
-    url = urls.MONITOR_JSON.format(monitor)
+    url = urls.MONITOR_JSON.format(account=account, monitor=monitor)
     response = session.put(url, data=json.dumps(data), headers=headers)
 
     try:
@@ -154,7 +147,8 @@ def update_monitor(monitor, *args, **kwargs):
             error = 'Bad request'
         return (1, error, {})
 
-    return (0, urls.MONITOR.format(response.json()['id']), response.json())
+    url = urls.MONITOR.format(account=account, monitor=response.json()['id'])
+    return (0, url, response.json())
 
 
 def _construct_metadata(validation_string=None, bypass_head_request=None,
@@ -190,8 +184,7 @@ def _construct_metadata(validation_string=None, bypass_head_request=None,
     return metadata
 
 
-@requires_login
-def create_monitor(name, uri, frequency, locations, emails=[],
+def create_monitor(account, name, uri, frequency, locations, emails=[],
                    validation_string='', bypass_head_request=False,
                    verify_ssl=False, redirect_is_failure=False,
                    slaThreshold=7):
@@ -204,7 +197,7 @@ def create_monitor(name, uri, frequency, locations, emails=[],
     if validation_string and not bypass_head_request:
         raise Exception('Response validation requires to bypass HEAD request.')
 
-    response = session.get(urls.NEW_MONITOR)
+    response = session.get(urls.NEW_MONITOR.format(account=account))
     response.raise_for_status()
     headers = {
         'Referer': response.url,
@@ -214,7 +207,7 @@ def create_monitor(name, uri, frequency, locations, emails=[],
     metadata = _construct_metadata(validation_string, bypass_head_request,
                                    verify_ssl, redirect_is_failure)
     data = {
-        'accountId': config.ACCOUNT,
+        'accountId': account,
         'name': name,
         'type': 'SIMPLE',
         'frequency': frequency,
@@ -227,7 +220,8 @@ def create_monitor(name, uri, frequency, locations, emails=[],
         'emails': emails,
     }
     data = json.dumps(data)
-    response = session.post(urls.MONITORS, data=data, headers=headers)
+    url = urls.MONITORS.format(account=account)
+    response = session.post(url, data=data, headers=headers)
 
     try:
         response.raise_for_status()
@@ -238,4 +232,17 @@ def create_monitor(name, uri, frequency, locations, emails=[],
             error = 'Bad request'
         return (1, error, {})
 
-    return (0, urls.MONITOR.format(response.json()['id']), response.json())
+    url = urls.MONITOR.format(account=account, monitor=response.json()['id'])
+    return (0, url, response.json())
+
+
+def get_accounts():
+    response = session.get(urls.SYNTHETICS)
+    response.raise_for_status()
+
+    accountId = re.search('"accountId":(\d+)', response.content).groups()[0]
+
+    response = session.get(urls.ACCOUNT_INFO.format(account=accountId))
+    response.raise_for_status()
+
+    return response.json().get('accountList')

@@ -3,11 +3,11 @@ NewRelic Synthetics (unofficial) CLI (NeReS)
 
 |image0| |image1| |image2|
 
-NeReS is a cli tool to manage `NewRelic
-Synthetics <https://synthetics.newrelic.com/>`__ monitors with a
-Synthetics Lite account. The tool emulates the actions of a user in the
-browser and doesn't use the Synthetics API since that's only available
-to the Pro accounts.
+NeReS is a cli tool to manage `NewRelic Synthetics
+<https://synthetics.newrelic.com/>`__ monitors with a Synthetics Lite account
+(Pro should work too). The tool emulates the actions of a user in the browser
+and doesn't use the Synthetics API since that's only available to the Pro
+accounts.
 
 Use the tools you can:
 
@@ -16,43 +16,133 @@ Use the tools you can:
 -  Create, update and delete monitors
 -  List available locations for monitor installation
 
-Everything you can do in the Web is supported and provided to your shell
-prompt.
+Everything you can do using the Web console is supported and provided to your
+shell prompt.
 
 Configuration
 -------------
 
 1. You will need a newrelic account
-2. Setup in your environment the following variables:
+2. Start by using the `login` command
+3. Read the docs or run `--help`
 
--  ``NERES_ACCOUNT``: Get the number from the URL after you login to NR.
--  ``NERES_EMAIL``: The email you use to login.
--  ``NERES_PASSWORD``: The password you use to login.
 
-or directly provide them when you run the tool.
+Use
+---
 
-Commands
---------
+Login to NewRelic
+~~~~~~~~~~~~~~~~~~
 
--  ``add-monitor``: Creates a monitor
--  ``delete-monitor``: Delete a monitor
--  ``get-monitor``: Get details on a monitor
--  ``list-locations``: Lists available locations to install monitors to
--  ``list-monitors``: Lists all monitors
--  ``open``: The monitor webpage in the browser
--  ``update-monitor``: Updates a monitor
-
-Examples
---------
+Login to NewRelic with the `login` command:
 
 .. code:: shell
 
-    $ NERES_ACCOUNT=11111 NERES_EMAIL=foo@example.com NERES_PASSWORD=123123 neres list-monitors
+   $ neres login
 
-TODOS
------
+If you have multiple NewRelic accounts you can have different environments:
 
--  Configuration wizard
+.. code:: shell
+
+   $ neres --environment work login
+
+.. note::
+
+  Default environment is named `newrelic`. Remember to always pass `--environment`
+  to all neres commands to execute them in the correct environment. Alternatively
+  you can add `NERES_ENVIRONMENT` to your environment variables list.
+
+
+List Accounts
+~~~~~~~~~~~~~
+
+You can list all the accounts connected to the email you used to connect using:
+
+.. code:: shell
+
+   $ neres list-accounts
+
+By default neres will act on the first account listed. This command will help
+you select a different account by using the `ID` of the account in combination
+with the `--account` option or by setting `NERES_ACCOUNT` in your environment.
+
+List Locations
+~~~~~~~~~~~~~~
+
+Lists available monitor locations:
+
+.. code:: shell
+
+   $ neres list-locations
+
+List Monitors
+~~~~~~~~~~~~~
+
+Lists available monitors:
+
+.. code:: shell
+
+   $ neres list-monitors
+
+You can only list IDs of the monitors:
+
+.. code:: shell
+
+   $ neres list-monitors --ids-only
+
+Or get the raw JSON output from NewRelic:
+
+.. code:: shell
+
+   $ neres list-monitors --raw
+
+Add Monitor
+~~~~~~~~~~~
+
+Adds a Synthetics monitor:
+
+.. code:: shell
+
+   $ neres add-monitor monitorName http://example.com
+
+Use `--help` to get a full list of supported options for the command. All
+options are optional.
+
+
+Get Monitor
+~~~~~~~~~~~
+
+Get details on a monitor
+
+.. code:: shell
+
+   $ neres get-monitor de310b69-3195-435e-b1ef-3a0af67499de
+
+
+.. note::
+
+   You can use `list-monitors` to get a list of available monitors.
+
+Update Monitor
+~~~~~~~~~~~~~~
+
+Update an existing monitor
+
+.. code:: shell
+
+   $ neres update-monitor de310b69-3195-435e-b1ef-3a0af67499de --name "Foobar"
+
+Use `--help` to get a full list of supported options for the command. All
+options are optional.
+
+
+Open Monitor
+~~~~~~~~~~~~
+
+Open monitor in the browser
+
+.. code:: shell
+
+   $ neres open de310b69-3195-435e-b1ef-3a0af67499de
 
 Credits
 -------
@@ -65,4 +155,3 @@ project template.
 .. |image0| image:: https://img.shields.io/pypi/v/neres.svg
 .. |image1| image:: https://travis-ci.org/glogiotatidis/neres.svg?branch=master
 .. |image2| image:: https://pyup.io/repos/github/glogiotatidis/neres/shield.svg
-
