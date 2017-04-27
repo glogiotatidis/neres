@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import pip
 from setuptools import setup
 
 with open('README.rst') as readme_file:
@@ -9,14 +9,18 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [
-    'Click>=6.0',
-    # TODO: put package requirements here
-]
+
+requirements = [str(item.req) for item in
+                pip.req.parse_requirements('requirements.txt',
+                                           session=pip.download.PipSession())
+                if item.req]
 
 test_requirements = [
-    # TODO: put package test requirements here
-]
+    str(item.req) for item in
+    pip.req.parse_requirements('requirements_dev.txt',
+                               session=pip.download.PipSession())
+    if item.req]
+
 
 setup(
     name='neres',
@@ -33,7 +37,7 @@ setup(
                  'neres'},
     entry_points={
         'console_scripts': [
-            'neres=neres.cli:main'
+            'neres=neres.cli:cli'
         ]
     },
     include_package_data=True,
@@ -55,5 +59,5 @@ setup(
         'Programming Language :: Python :: 3.5',
     ],
     test_suite='tests',
-    tests_require=test_requirements
+    tests_require=test_requirements,
 )
