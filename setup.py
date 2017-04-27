@@ -24,7 +24,7 @@ test_requirements = [
 
 setup(
     name='neres',
-    version='0.1.0',
+    version='0.1.1',
     description="(unofficial) NewRelic Synthetics CLI",
     long_description=readme + '\n\n' + history,
     author="Giorgos Logiotatidis",
