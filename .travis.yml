@@ -1,18 +1,18 @@
 language: python
 python: 3.5
 env:
-  - TOXENV=py35
-  - TOXENV=py34
-  - TOXENV=py27
+- TOXENV=py35
+- TOXENV=py34
+- TOXENV=py27
 install: pip install -U tox
 script: tox -e ${TOXENV}
 deploy:
-  true:
-    condition: $TOXENV == py27
+  on:
+    condition: "$TOXENV == py27"
     repo: glogiotatidis/neres
     tags: true
   distributions: sdist bdist_wheel
-  password:
-    secure: ft5JJfcb60t2Cke5RlDtxM+WkncEB5xP8z0bZDsS5b1cIJzLsdiyle+gnearuF/rwtsEjIdITYRp7bebjmDRP08GqH63HAjx1GWYXQtvl9gOd1O0YJQj6oVzVLxeRTGlgOP28ynItHncxI5R7MEE62iOLLwT/xa24WKrYUqXY/r3JEV0PFnF/5GSAr26vH/CXfYAZyPhNWMmDADNrzlUMsewfXXdXEVpmKBy9KQU2SKdl1aUQ2688uzRQPyqromEr7ODiUyOnUOhZMYTj8gN4Gst8nDo+CfuRdpyCfiFFCn8rwOPirlJDJXw6WzaaiivgbXvwwOuveIFbSifRtxeyl/6PXZPiDqr0pIaPnzJE+WDO4EKhCRYWo6Q5C3NUsfEFsMrBA8AdFNBn1X1sCO3cfsQhbmbou/KTzp47hYkmwUiOw4Gei146nWDDIoRycVUUMptjCgWv1L6rKLlI7EVi4vOegY0tZaqJgCjU+6Q5WmMa21IGXUYmypo3KprGmeUunPT8+5/JgS2kxZTuzZYwGNBRkrQ76vFdiyh360ijyKlLxW4LjMzJGs6ziWayeY5jZJ/WaCVK9yGoTTv0eSTZW7g52uIK8w3bA+NaECeGWf/k2dm3M+gAQnyKhCFlLI9FYfDYff1+r/4BiXnTVx+7Kzx2C4C1POm/JnjYIqc4pk=
   provider: pypi
   user: glogiotatidis
+  password:
+    secure: WKUT+71mV2jy9dbGgz2llRUlCW8vpdLBJ/ovFoB8XDxUto3rG/2vmCOdyTi26m17aVahnczdf1PMdBuvMiF6ssZLtGnvLBBJLofSnPg4lvffUJVV0LBhxP2mRxkOEkQgeNQPHIngTS4MIEND8nT5VljIHEUUHaFQIqVGpdgz1Zw+wjSIrY2Ybu7zocPO6eJJK1kkMoEtb3de8dCBS6Q+tIwIR/u8hkEHM8L0HUrn0pQwyDn2MVjTPuL3msLPa+vi+KzViMQEX4l0wSPECJrOe2DdsN8Gx+EG/tt09hDFsHhJM7UPunX7+ycTY66mtS0viUr7IG2cY6BB8Ep6CtOxcPvv5gU29UhsAORW2xfepR9CF9H3o9segy3wW59/8aUhOmhq3Cj6kiTZmrKRs0RUi9gCvGcRyyyuY6ZCuq2/iuotMhc70pgnA2/GsqsW47hRLprsUpp7e9Cy00vT3yQPjis7mZwdtggtSauuAoDJne01XchM2G1PqryDEdp5MgHgsjPiWcv+Ohx/n8MM/pHsIDTsGEWFOjzUWxDb9Y9DzQoPB+hOO5r2qDoHxHfT1QwzDWWma/JB9hV6kSo3ueoQ6cDcKppGYcJaYv/hyGnqLp2pkr0t1FEqIOUDkc0OTWqlvvqSfA3GtyiqZd1gR5SpTYblM8esbk5fNBIRLpbG8gI=
