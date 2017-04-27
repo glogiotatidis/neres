@@ -19,6 +19,15 @@ Use the tools you can:
 Everything you can do using the Web console is supported and provided to your
 shell prompt.
 
+Installation
+------------
+
+.. code:: shell
+
+   $ pip install neres
+
+
+
 Configuration
 -------------
 
