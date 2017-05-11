@@ -15,18 +15,28 @@ import urls
 from spinner import Spinner
 
 
-@click.command()
+@click.command(help='Add a new monitor')
 @click.argument('name')
 @click.argument('uri')
-@click.option('--location', default=['AWS_US_WEST_1'], multiple=True)
-@click.option('--frequency', default=10)
-@click.option('--email', default=[''], multiple=True)
-@click.option('--validation-string', default='')
-@click.option('--bypass-head-request', default=False, is_flag=True)
-@click.option('--verify-ssl', default=False, is_flag=True)
-@click.option('--redirect-is-failure', default=False, is_flag=True)
-@click.option('--sla-threshold', default=7)
-@click.option('--raw', default=False, is_flag=True)
+@click.option('--location', default=['AWS_US_WEST_1'], multiple=True,
+              help='Monitor locations. Defaults to AWS_US_WEST_1. Get a list of available monitor'
+                   'locations with `list-locations`. Repeat for multiple locations.')
+@click.option('--frequency', default='10',
+              type=click.Choice(['1', '5', '10', '15', '30', '60', '360', '720', '1440']),
+              help='Monitor frequency. Defaults to 10 minutes')
+@click.option('--email', default=[''], multiple=True,
+              help='Send alerts to email. Repeat for multiple alerts.')
+@click.option('--validation-string', default='',
+              help='Add a validation string to look for in the response (optional)')
+@click.option('--bypass-head-request', default=False, is_flag=True,
+              help=('Send full HTTP GET requests. '
+                    'Will be automatically set if validation-string is provided.'))
+@click.option('--verify-ssl', default=False, is_flag=True,
+              help='Run a detailed OpenSSL handshake and alert if it fails.')
+@click.option('--redirect-is-failure', default=False, is_flag=True,
+              help='HTTP redirect codes result in a failure')
+@click.option('--sla-threshold', default=7, help='Set Apdex Threshold. Defaults to 7 seconds.')
+@click.option('--raw', default=False, is_flag=True, help='Return raw json response')
 @click.pass_context
 def add_monitor(ctx, name, uri, location, frequency, email, validation_string,
                 bypass_head_request, verify_ssl, redirect_is_failure, sla_threshold, raw):
@@ -52,24 +62,38 @@ def add_monitor(ctx, name, uri, location, frequency, email, validation_string,
         raise click.ClickException(message)
 
 
-@click.command()
+@click.command(help='Update an existing monitor')
 @click.argument('monitor')
-@click.option('--name', default=None)
-@click.option('--uri', default=None)
-@click.option('--add-location', 'add_locations', default=None, multiple=True)
-@click.option('--clear-locations', default=False, is_flag=True)
-@click.option('--remove-location', 'remove_locations', default=None, multiple=True)
-@click.option('--add-email', 'add_emails', default=None, multiple=True)
-@click.option('--remove-email', 'remove_emails', default=None, multiple=True)
-@click.option('--clear-emails', default=False, is_flag=True)
-@click.option('--frequency', default=None)
-@click.option('--sla-threshold', 'slaThreshold', default=None)
-@click.option('--validation-string', default=None)
-@click.option('--no-validation-string', default=None, is_flag=True)
-@click.option('--bypass-head-request/--no-bypass-head-request', default=None, is_flag=True)
-@click.option('--verify-ssl/--no-verify-ssl', default=None, is_flag=True)
-@click.option('--redirect-is-failure/--no-redirect-is-failure', default=None, is_flag=True)
-@click.option('--raw', default=False, is_flag=True)
+@click.option('--name', default=None, help='Change the name of the monitor')
+@click.option('--uri', default=None, help='Change the URI to monitor')
+@click.option('--add-location', 'add_locations', default=None, multiple=True,
+              help=('Add a monitor location. Repeat for multiple locations. '
+                    'Get available locations with `list-locations`'))
+@click.option('--clear-locations', default=False, is_flag=True,
+              help='Remove all monitor locations. Must be combined with `add-location`')
+@click.option('--remove-location', 'remove_locations', default=None, multiple=True,
+              help='Remove a monitor location. Repeats for multiple locations')
+@click.option('--add-email', 'add_emails', default=None, multiple=True,
+              help='Add an email to receive alerts. Repeat for multiple emails')
+@click.option('--remove-email', 'remove_emails', default=None, multiple=True,
+              help='Remove email from alert list. Repeat for multiple emails')
+@click.option('--clear-emails', default=False, is_flag=True,
+              help='Remove all emails from alert list')
+@click.option('--frequency', default=None,
+              type=click.Choice(['1', '5', '10', '15', '30', '60', '360', '720', '1440']),
+              help='Change monitor frequency.')
+@click.option('--sla-threshold', 'slaThreshold', default=None,
+              help='Change Apdex Threshold')
+@click.option('--validation-string', default=None, help='Set or change the validation string')
+@click.option('--no-validation-string', default=None, is_flag=True,
+              help='Remove validation string check')
+@click.option('--bypass-head-request/--no-bypass-head-request', default=None, is_flag=True,
+              help='Set / unset sending of full HTTP GET requests')
+@click.option('--verify-ssl/--no-verify-ssl', default=None, is_flag=True,
+              help='Set / unset OpenSSL verification')
+@click.option('--redirect-is-failure/--no-redirect-is-failure', default=None, is_flag=True,
+              help='Set / unset redirect is failure check')
+@click.option('--raw', default=False, is_flag=True, help='Return raw json response')
 @click.pass_context
 def update_monitor(ctx, monitor, **kwargs):
     if kwargs['no_validation_string']:
@@ -103,9 +127,9 @@ def update_monitor(ctx, monitor, **kwargs):
         raise click.ClickException(message)
 
 
-@click.command()
+@click.command(help='Get information for a monitor')
 @click.argument('monitor')
-@click.option('--raw', default=False, is_flag=True)
+@click.option('--raw', default=False, is_flag=True, help='Return raw json response')
 @click.pass_context
 def get_monitor(ctx, monitor, raw):
     with Spinner('Fetching monitor: '):
@@ -141,9 +165,9 @@ def get_monitor(ctx, monitor, raw):
     print(table.table)
 
 
-@click.command()
+@click.command(help='Delete a monitor')
 @click.argument('monitor')
-@click.option('--confirm', default=None)
+@click.option('--confirm', default=None, help='Skip confirmation prompt by supplying monitor id')
 @click.pass_context
 def delete_monitor(ctx, monitor, confirm):
     if not confirm:
@@ -163,8 +187,8 @@ def delete_monitor(ctx, monitor, confirm):
     print(click.style(u'OK', fg='green', bold=True))
 
 
-@click.command()
-@click.option('--raw', default=False, is_flag=True)
+@click.command(help='List available monitor locations')
+@click.option('--raw', default=False, is_flag=True, help='Return raw json response')
 @click.pass_context
 def list_locations(ctx, raw):
     with Spinner('Fetching locations: '):
@@ -208,9 +232,9 @@ def list_locations(ctx, raw):
     print(table.table)
 
 
-@click.command()
-@click.option('--ids-only', default=False, is_flag=True)
-@click.option('--raw', default=False, is_flag=True)
+@click.command(help='List monitors')
+@click.option('--ids-only', default=False, is_flag=True, help='List monitor IDs only')
+@click.option('--raw', default=False, is_flag=True, help='Return raw json response')
 @click.pass_context
 def list_monitors(ctx, ids_only, raw):
     with Spinner('Fetching monitors: '):
@@ -288,7 +312,7 @@ def list_monitors(ctx, ids_only, raw):
     print(table.table)
 
 
-@click.command()
+@click.command(help='Open monitor in Web browser')
 @click.argument('monitor')
 @click.pass_context
 def open_monitor(ctx, monitor):
@@ -301,8 +325,8 @@ def open_monitor(ctx, monitor):
         subprocess.Popen(['xdg-open', url])
 
 
-@click.command()
-@click.option('--raw', is_flag=True, default=False)
+@click.command(help='List accounts')
+@click.option('--raw', is_flag=True, default=False, help='Return raw json response')
 def list_accounts(raw):
     with Spinner('Fetching accounts: '):
         accounts = newrelic.get_accounts()
@@ -323,7 +347,7 @@ def list_accounts(raw):
     print(table.table)
 
 
-@click.command()
+@click.command(help='Login to newrelic')
 @click.pass_context
 def login(ctx):
     email = ctx.obj['EMAIL']
@@ -340,10 +364,13 @@ def login(ctx):
 
 
 @click.group()
-@click.option('--email')
-@click.option('--password')
-@click.option('--account')
-@click.option('--environment', default='newrelic')
+@click.option('--email', help='New Relic login email')
+@click.option('--password', help='New Relic login password')
+@click.option('--account', help=('New Relic account to work on. You can get a list of accounts '
+                                 'with `list-accounts`. Defaults to first listed account'))
+@click.option('--environment', default='newrelic',
+              help=('Default `newrelic`. Define different environments for '
+                    'different New Relic accounts.'))
 @click.pass_context
 def cli(ctx, email, password, account, environment):
     cookiejar = os.path.expanduser('~/.config/neres/{}.cookies'.format(environment))
@@ -379,5 +406,5 @@ cli.add_command(open_monitor, name='open')
 cli.add_command(login, name='login')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     cli(auto_envvar_prefix='NERES')
