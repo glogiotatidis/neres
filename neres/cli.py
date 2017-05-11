@@ -393,7 +393,7 @@ def cli(ctx, email, password, account, environment):
     ctx.obj = {}
     ctx.obj['ACCOUNT'] = account
     ctx.obj['EMAIL'] = email
-    ctx.obj['PASSWORD'] = email
+    ctx.obj['PASSWORD'] = password
 
 
 cli.add_command(list_monitors, name='list-monitors')
