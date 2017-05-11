@@ -1,9 +1,16 @@
 language: python
 python: 3.5
 env:
-- TOXENV=py35
-- TOXENV=py34
-- TOXENV=py27
+    matrix:
+        - TOXENV=py35
+        - TOXENV=py34
+        - TOXENV=py27
+        - TOXENV=flake8
+        - TOXENV=cli_test
+addons:
+  apt:
+    packages:
+    - jq
 install: pip install -U tox
 script: tox -e ${TOXENV}
 deploy:
