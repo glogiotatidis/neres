@@ -11,9 +11,9 @@ import click
 import humanize
 from terminaltables import SingleTable
 
-import newrelic
-import urls
-from spinner import Spinner
+import neres.newrelic as newrelic
+import neres.urls as urls
+from .spinner import Spinner
 
 
 @click.command(help='Add a new monitor')

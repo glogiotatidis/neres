@@ -7,8 +7,8 @@ import six
 import requests
 from six.moves.http_cookiejar import LWPCookieJar
 
-import urls
-import session
+import neres.urls as urls
+import neres.session as session
 
 session = session.Session()
 
@@ -36,7 +36,7 @@ def login(email, password):
     response.raise_for_status()
 
     try:
-        token = re.search('name="authenticity_token" value="(.+?)"',
+        token = re.search(b'name="authenticity_token" value="(.+?)"',
                           response.content).groups()[0]
     except AttributeError:
         Exception("Can't get CSRF token to login.")
@@ -52,7 +52,7 @@ def login(email, password):
     }
     response = session.post(urls.LOGIN, data=payload, add_xsrf_token=False)
     response.raise_for_status()
-    if 'login_email' in response.content:
+    if b'login_email' in response.content:
         raise Exception('Login Failed')
     session.cookies.save(ignore_discard=True)
 
@@ -238,9 +238,9 @@ def get_accounts():
     response = session.get(urls.SYNTHETICS)
     response.raise_for_status()
 
-    accountId = re.search('"accountId":(\d+)', response.content).groups()[0]
+    accountId = re.search(b'"accountId":(\d+)', response.content).groups()[0]
 
-    response = session.get(urls.ACCOUNT_INFO.format(account=accountId))
+    response = session.get(urls.ACCOUNT_INFO.format(account=accountId.decode('utf-8')))
     response.raise_for_status()
 
     return response.json().get('accountList')
