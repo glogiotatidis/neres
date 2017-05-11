@@ -31,9 +31,7 @@ def check_if_logged_in():
 
 
 def login(email, password):
-    if check_if_logged_in():
-        return
-
+    session.cookies.clear()
     response = session.get(urls.LOGIN)
     response.raise_for_status()
 
