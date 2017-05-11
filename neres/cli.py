@@ -380,11 +380,11 @@ def cli(ctx, email, password, account, environment):
 
     if ctx.invoked_subcommand != 'login':
         with Spinner('Authorizing: '):
-            if not newrelic.check_if_logged_in():
-                if not all([email, password]):
+            if all([email, password]):
+                newrelic.login(email, password)
+            else:
+                if not newrelic.check_if_logged_in():
                     raise click.ClickException('Login first')
-                else:
-                    newrelic.login(email, password)
 
         if not account and ctx.invoked_subcommand != 'list-accounts':
             account = newrelic.get_accounts()[0]['id']
