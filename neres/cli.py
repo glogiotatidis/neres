@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import json
 import sys
 import os
 import platform
@@ -51,7 +52,7 @@ def add_monitor(ctx, name, uri, location, frequency, email, validation_string,
             sla_threshold)
 
     if raw:
-        print(monitor)
+        print(json.dumps(monitor))
         return
 
     if status == 0:
@@ -116,7 +117,7 @@ def update_monitor(ctx, monitor, **kwargs):
         status, message, monitor = newrelic.update_monitor(ctx.obj['ACCOUNT'], monitor, **kwargs)
 
     if kwargs['raw']:
-        print(monitor)
+        print(json.dumps(monitor))
         return
 
     if status == 0:
@@ -136,7 +137,7 @@ def get_monitor(ctx, monitor, raw):
         monitor = newrelic.get_monitor(ctx.obj['ACCOUNT'], monitor)
 
     if raw:
-        print(monitor)
+        print(json.dumps(monitor))
         return
 
     status = monitor['status'].lower()
@@ -195,7 +196,7 @@ def list_locations(ctx, raw):
         locations = newrelic.get_locations(ctx.obj['ACCOUNT'])
 
     if raw:
-        print(locations)
+        print(json.dumps(locations))
         return
 
     data = [[
@@ -241,7 +242,7 @@ def list_monitors(ctx, ids_only, raw):
         monitors = newrelic.get_monitors(ctx.obj['ACCOUNT'])
 
     if raw:
-        print(monitors)
+        print(json.dumps(monitors))
         return
 
     if ids_only:

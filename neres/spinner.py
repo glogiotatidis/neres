@@ -23,19 +23,19 @@ class Spinner(object):
     def stop(self):
         self.stop_running.set()
         if self.message and self.remove_message:
-            sys.stdout.write('\b' * len(self.message))
+            sys.stderr.write('\b' * len(self.message))
         self.spin_thread.join()
 
     def init_spin(self):
         while not self.stop_running.is_set():
-            sys.stdout.write(self.spinner_cycle.next())
-            sys.stdout.flush()
+            sys.stderr.write(self.spinner_cycle.next())
+            sys.stderr.flush()
             time.sleep(0.35)
-            sys.stdout.write('\b')
+            sys.stderr.write('\b')
 
     def __enter__(self):
         if self.message:
-            print(self.message, end='')
+            sys.stderr.write(self.message)
         self.start()
 
     def __exit__(self, *args):
