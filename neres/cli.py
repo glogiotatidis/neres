@@ -25,7 +25,7 @@ from .spinner import Spinner
 @click.option('--frequency', default='10',
               type=click.Choice(['1', '5', '10', '15', '30', '60', '360', '720', '1440']),
               help='Monitor frequency. Defaults to 10 minutes')
-@click.option('--email', default=[''], multiple=True,
+@click.option('--email', default=[], multiple=True,
               help='Send alerts to email. Repeat for multiple alerts.')
 @click.option('--validation-string', default='',
               help='Add a validation string to look for in the response (optional)')
