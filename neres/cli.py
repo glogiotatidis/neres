@@ -6,9 +6,10 @@ import os
 import platform
 import subprocess
 
-
 import click
 import humanize
+import yaml
+import yamlordereddictloader
 from terminaltables import SingleTable
 
 import neres.newrelic as newrelic
@@ -366,6 +367,47 @@ def login(ctx):
     print(click.style(u'OK', fg='green', bold=True))
 
 
+@click.command(help='Update from state')
+@click.argument('statefile', type=click.File('rb'))
+@click.pass_context
+def update_from_statefile(ctx, statefile):
+    there_data = newrelic.get_state(ctx.obj['ACCOUNT'])
+    here_data = yaml.load(statefile)
+
+    changes = 0
+    for monitor in here_data:
+        for there_monitor in there_data:
+            if there_monitor['id'] == monitor['id']:
+                break
+        else:
+            print('Monitor {} does not exist, skipping.'.format(monitor['id']))
+            continue
+
+        if there_monitor != monitor:
+            monitor_id = monitor.pop('id')
+            with Spinner('Updating monitor {}: '.format(monitor_id), remove_message=False):
+                newrelic.update_monitor(ctx.obj['ACCOUNT'], monitor_id, **monitor)
+            print(click.style(u'OK', fg='green', bold=True))
+            changes += 1
+
+    if changes == 0:
+        print('No changes made.')
+
+
+@click.command(help='Get state')
+@click.pass_context
+def get_state(ctx, return_data=False):
+    with Spinner('Fetching state: '):
+        state = newrelic.get_state(ctx.obj['ACCOUNT'])
+
+    print(yaml.dump(
+        state,
+        allow_unicode=True,
+        default_flow_style=False,
+        Dumper=yamlordereddictloader.SafeDumper,
+    ))
+
+
 @click.group()
 @click.option('--email', help='New Relic login email')
 @click.option('--password', help='New Relic login password')
@@ -407,6 +449,8 @@ cli.add_command(update_monitor, name='update-monitor')
 cli.add_command(list_accounts, name='list-accounts')
 cli.add_command(open_monitor, name='open')
 cli.add_command(login, name='login')
+cli.add_command(get_state, name='get-state')
+cli.add_command(update_from_statefile, name='update-from-statefile')
 
 
 if __name__ == '__main__':

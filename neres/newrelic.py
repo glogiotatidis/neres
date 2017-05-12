@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import os
+from collections import OrderedDict
 
 import json
 import six
@@ -100,7 +101,8 @@ def get_monitor(account, monitor):
 
 def update_monitor(account, monitor, *args, **kwargs):
     data = get_monitor(account, monitor)
-    for prop in ['name', 'uri', 'frequency', 'locations', 'slaThreshold']:
+    for prop in ['name', 'uri', 'frequency',
+                 'emails', 'locations', 'slaThreshold', 'status']:
         value = kwargs.get(prop, None)
         if value:
             data[prop] = value
@@ -244,3 +246,40 @@ def get_accounts():
     response.raise_for_status()
 
     return response.json().get('accountList')
+
+
+def get_state(account):
+    data = []
+    monitors = get_monitors(account)
+
+    for monitor in monitors:
+        monitor_details = get_monitor(account, monitor['id'])
+
+        monitor_data = OrderedDict([
+            ('id', monitor['id']),
+            ('name', monitor_details['name']),
+            ('uri', monitor_details['uri']),
+            ('slaThreshold', monitor_details['slaThreshold']),
+            ('emails', monitor_details['emails'] or ''),
+            ('locations', monitor_details['locations'] or ''),
+            ('frequency', monitor_details['frequency']),
+            ('status', monitor_details['status']),
+        ])
+
+        if monitor_details['metadata']:
+            m = monitor_details['metadata']
+            if m.get('nr.synthetics.metadata.job.options.simple.bypass.head') == 'true':
+                monitor_data['bypass_head_request'] = True
+            else:
+                monitor_data['bypass_head_request'] = False
+
+            response_validation = m.get(
+                'nr.synthetics.metadata.job.options.response-validation', '')
+            monitor_data['validation_string'] = response_validation
+
+            if m.get('nr.synthetics.metadata.job.options.tlsValidation'):
+                monitor_data['verify_ssl'] = True
+
+        data.append(monitor_data)
+
+    return data

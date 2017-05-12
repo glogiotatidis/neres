@@ -22,5 +22,13 @@ neres update-monitor ${ID} --name `date "+%Y%m%H%M%s"` --frequency 1440
 echo "List monitors"
 neres list-monitors| grep ${ID}
 
+echo "Get state"
+neres get-state > state.yml
+
+echo "Update state"
+sed -i -e 's/frequency: 1440/frequency: 720/g' state.yml
+neres update-from-statefile state.yml
+#neres get-monitor ${ID} --raw | jq .frequency | grep 720
+
 echo "Delete monitor"
 neres delete-monitor ${ID} --confirm ${ID}
