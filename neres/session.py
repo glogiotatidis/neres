@@ -26,13 +26,19 @@ class Session(requests.Session):
     def post(self, *args, **kwargs):
         if kwargs.pop('add_xsrf_token', True):
             kwargs = self._set_xsrf_headers(kwargs)
-        return super(Session, self).post(*args, **kwargs)
+        response = super(Session, self).post(*args, **kwargs)
+        self._store_xsrf_token(response)
+        return response
 
     def put(self, *args, **kwargs):
         if kwargs.pop('add_xsrf_token', True):
             kwargs = self._set_xsrf_headers(kwargs)
-        return super(Session, self).put(*args, **kwargs)
+        response = super(Session, self).put(*args, **kwargs)
+        self._store_xsrf_token(response)
+        return response
 
     def delete(self, *args, **kwargs):
         kwargs = self._set_xsrf_headers(kwargs)
-        return super(Session, self).delete(*args, **kwargs)
+        response = super(Session, self).delete(*args, **kwargs)
+        self._store_xsrf_token(response)
+        return response
