@@ -265,28 +265,33 @@ def get_state(account):
         monitor_data = OrderedDict([
             ('id', monitor['id']),
             ('name', monitor_details['name']),
+            ('status', monitor_details['status']),
             ('uri', monitor_details['uri']),
             ('slaThreshold', monitor_details['slaThreshold']),
             ('emails', monitor_details['emails'] or ''),
             ('locations', monitor_details['locations'] or ''),
             ('frequency', monitor_details['frequency']),
-            ('status', monitor_details['status']),
+            ('verify_ssl', False),
+            ('validation_string', False),
+            ('bypass_head_request', False),
+            ('redirect_is_failure', False),
         ])
 
         if monitor_details['metadata']:
             m = monitor_details['metadata']
+
             if m.get('nr.synthetics.metadata.job.options.simple.bypass.head') == 'true':
                 monitor_data['bypass_head_request'] = True
-            else:
-                monitor_data['bypass_head_request'] = False
 
             response_validation = m.get(
-                'nr.synthetics.metadata.job.options.response-validation', '')
+                'nr.synthetics.metadata.job.options.response-validation', False)
             monitor_data['validation_string'] = response_validation
 
-            if m.get('nr.synthetics.metadata.job.options.tlsValidation'):
+            if m.get('nr.synthetics.monitor.tls-validation'):
                 monitor_data['verify_ssl'] = True
 
+            if m.get('nr.synthetics.metadata.job.options.simple.redirect.is.failure'):
+                monitor_data['redirect_is_failure'] = True
         data.append(monitor_data)
 
     return data
