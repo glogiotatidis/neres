@@ -397,8 +397,14 @@ def update_from_statefile(ctx, apply, statefile):
             monitor_id = monitor.pop('id')
             with Spinner('Updating monitor {}: '.format(monitor_id), remove_message=False):
                 if apply:
-                    newrelic.update_monitor(ctx.obj['ACCOUNT'], monitor_id, **monitor)
-            print(click.style(u'OK', fg='green', bold=True))
+                    status, message, _ = newrelic.update_monitor(ctx.obj['ACCOUNT'],
+                                                                 monitor_id,
+                                                                 **monitor)
+                    if status == 0:
+                        print(click.style(u'OK', fg='green', bold=True))
+                    else:
+                        print(click.style(u'Error', fg='red', bold=True))
+                        raise click.ClickException(message)
             changes += 1
 
     if changes == 0:
