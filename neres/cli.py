@@ -5,6 +5,7 @@ import sys
 import os
 import platform
 import subprocess
+from datetime import datetime
 
 import click
 import humanize
@@ -371,9 +372,14 @@ def login(ctx):
 
 @click.command(help='Update from state')
 @click.argument('statefile', type=click.File('rb'))
+@click.option('--apply', default=False, is_flag=True)
 @click.pass_context
-def update_from_statefile(ctx, statefile):
-    there_data = newrelic.get_state(ctx.obj['ACCOUNT'])
+def update_from_statefile(ctx, apply, statefile):
+    if not apply:
+        print('This is a dry run. Run with --apply to make the changes.\n')
+
+    with Spinner('Getting current state: '):
+        there_data = newrelic.get_state(ctx.obj['ACCOUNT'])
     here_data = yaml.load(statefile)
 
     changes = 0
@@ -382,18 +388,21 @@ def update_from_statefile(ctx, statefile):
             if there_monitor['id'] == monitor['id']:
                 break
         else:
-            print('Monitor {} does not exist, skipping.'.format(monitor['id']))
+            print('Monitor {} only exists in statefile, skipping.'.format(monitor['id']))
             continue
 
         if there_monitor != monitor:
             monitor_id = monitor.pop('id')
             with Spinner('Updating monitor {}: '.format(monitor_id), remove_message=False):
-                newrelic.update_monitor(ctx.obj['ACCOUNT'], monitor_id, **monitor)
+                if apply:
+                    newrelic.update_monitor(ctx.obj['ACCOUNT'], monitor_id, **monitor)
             print(click.style(u'OK', fg='green', bold=True))
             changes += 1
 
     if changes == 0:
         print('No changes made.')
+    else:
+        print('Successfully updated {} monitors'.format(changes))
 
 
 @click.command(help='Get state')
@@ -402,6 +411,7 @@ def get_state(ctx, return_data=False):
     with Spinner('Fetching state: '):
         state = newrelic.get_state(ctx.obj['ACCOUNT'])
 
+    print('# Generated on {}'.format(datetime.utcnow().isoformat()))
     print(yaml.dump(
         state,
         allow_unicode=True,
