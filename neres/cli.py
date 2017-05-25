@@ -95,8 +95,10 @@ def add_monitor(ctx, name, uri, location, frequency, email, validation_string,
               help='Set / unset OpenSSL verification')
 @click.option('--redirect-is-failure/--no-redirect-is-failure', default=None, is_flag=True,
               help='Set / unset redirect is failure check')
-@click.option('--status', type=click.Choice(['ENABLED', 'DISABLED', 'MUTED']), default=None,
-              help='Set monitor status.')
+@click.option('--status',
+              type=click.Choice(['enabled', 'disabled', 'muted', 'ENABLED', 'DISABLED', 'MUTED']),
+              default=None, help='Set monitor status',
+              callback=lambda x, y, z: z.upper())  # Yes this is horrible.
 @click.option('--raw', default=False, is_flag=True, help='Return raw json response')
 @click.pass_context
 def update_monitor(ctx, monitor, **kwargs):
