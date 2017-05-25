@@ -28,7 +28,8 @@ neres get-state > state.yml
 echo "Update state"
 sed -i -e 's/frequency: 1440/frequency: 720/g' state.yml
 neres update-from-statefile state.yml
-#neres get-monitor ${ID} --raw | jq .frequency | grep 720
+neres update-from-statefile state.yml --apply
+neres get-monitor ${ID} --raw | jq .frequency | grep 720
 
 echo "Delete monitor"
 neres delete-monitor ${ID} --confirm ${ID}
