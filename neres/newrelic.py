@@ -101,6 +101,13 @@ def get_monitor(account, monitor):
 
 def update_monitor(account, monitor, *args, **kwargs):
     data = get_monitor(account, monitor)
+    data['id'] = monitor
+    data.pop('createdAt', None)
+    data.pop('modifiedAt', None)
+
+    data['currentChecks'] = 43200 / data['frequency']
+    data['slaThreshold'] = int(data['slaThreshold'])
+
     for prop in ['name', 'uri', 'frequency',
                  'emails', 'locations', 'slaThreshold', 'status']:
         value = kwargs.get(prop, None)
