@@ -153,6 +153,41 @@ Open monitor in the browser
 
    $ neres open de310b69-3195-435e-b1ef-3a0af67499de
 
+
+Get state of all monitors of account
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Export the state of all monitors of account in YAML format with
+
+.. code:: shell
+
+   $ neres get-state
+
+
+Save the output into a file, edit and use in combination with the
+`update-from-statefile` command to update multiple monitors at once.
+
+.. code:: shell
+
+   $ neres get-state > state.yaml
+
+
+Update monitors from statefile
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Update monitors from statefile with
+
+.. code:: shell
+
+   $ neres update-from-statefile state.yaml
+
+
+.. note::
+
+   This command will only update existing monitors. It will not create new or
+   delete existing ones.
+
+
 Credits
 -------
 

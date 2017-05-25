@@ -2,7 +2,14 @@
 History
 =======
 
-0.1.2 (2017-05-11)
+0.3.0 (2017-05-25)
+------------------
+
+* Multiple monitors management with get-state and update-from-statefile
+* Bug fixes
+
+
+0.2.0 (2017-05-11)
 ------------------
 
 * Python 3 fixes
