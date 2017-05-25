@@ -26,6 +26,7 @@ from .spinner import Spinner
                    'locations with `list-locations`. Repeat for multiple locations.')
 @click.option('--frequency', default='10',
               type=click.Choice(['1', '5', '10', '15', '30', '60', '360', '720', '1440']),
+              callback=lambda x, y, z: int(z),
               help='Monitor frequency. Defaults to 10 minutes')
 @click.option('--email', default=[], multiple=True,
               help='Send alerts to email. Repeat for multiple alerts.')
@@ -38,7 +39,8 @@ from .spinner import Spinner
               help='Run a detailed OpenSSL handshake and alert if it fails.')
 @click.option('--redirect-is-failure', default=False, is_flag=True,
               help='HTTP redirect codes result in a failure')
-@click.option('--sla-threshold', default=7, help='Set Apdex Threshold. Defaults to 7 seconds.')
+@click.option('--sla-threshold', default=7, type=int,
+              help='Set Apdex Threshold. Defaults to 7 seconds.')
 @click.option('--raw', default=False, is_flag=True, help='Return raw json response')
 @click.pass_context
 def add_monitor(ctx, name, uri, location, frequency, email, validation_string,
@@ -99,7 +101,7 @@ def add_monitor(ctx, name, uri, location, frequency, email, validation_string,
 @click.option('--status',
               type=click.Choice(['enabled', 'disabled', 'muted', 'ENABLED', 'DISABLED', 'MUTED']),
               default=None, help='Set monitor status',
-              callback=lambda x, y, z: z.upper())  # Yes this is horrible.
+              callback=lambda x, y, z: z.upper() if z else None)  # Yes this is horrible.
 @click.option('--raw', default=False, is_flag=True, help='Return raw json response')
 @click.pass_context
 def update_monitor(ctx, monitor, **kwargs):
