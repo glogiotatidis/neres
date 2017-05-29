@@ -10,11 +10,11 @@ from datetime import datetime
 import click
 import humanize
 import yaml
-import yamlordereddictloader
 from terminaltables import SingleTable
 
 import neres.newrelic as newrelic
 import neres.urls as urls
+import neres.yamlordereddictloader as yamlordereddictloader
 from .spinner import Spinner
 
 
