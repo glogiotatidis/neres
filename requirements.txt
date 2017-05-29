@@ -30,5 +30,5 @@ PyYAML==3.12 \
     --hash=sha256:0c507b7f74b3d2dd4d1322ec8a94794927305ab4cebbe89cc47fe5e81541e6e8 \
     --hash=sha256:b4c423ab23291d3945ac61346feeb9a0dc4184999ede5e7c43e1ffb975130ae6 \
     --hash=sha256:5ac82e411044fb129bae5cfbeb3ba626acb2af31a8d17d175004b70862a741a7
-https://github.com/fmenabe/python-yamlordereddictloader/archive/e1505eb28f4796734f074cc1ff723e37fe4d8259.zip#egg=yamlordereddictloader \
-    --hash=sha256:3b543b4cb8c69176fc293e54bc8f11e3b988b5fe2b913862b54d7bd799ef1cca
+yamlordereddictloader==0.3.0 \
+    --hash=sha256:24db7896db4879080c7bb8e1f303bd9fdd3655d8b257077ec9e3f894c2bf9dc5
