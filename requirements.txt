@@ -32,3 +32,6 @@ PyYAML==3.12 \
     --hash=sha256:5ac82e411044fb129bae5cfbeb3ba626acb2af31a8d17d175004b70862a741a7
 yamlordereddictloader==0.3.0 \
     --hash=sha256:24db7896db4879080c7bb8e1f303bd9fdd3655d8b257077ec9e3f894c2bf9dc5
+six==1.10.0 \
+    --hash=sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1 \
+    --hash=sha256:105f8d68616f8248e24bf0e9372ef04d3cc10104f1980f54d57b2ce73a5ad56a
