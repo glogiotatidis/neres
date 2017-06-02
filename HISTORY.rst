@@ -2,6 +2,11 @@
 History
 =======
 
+0.4.0 (2017-06-02)
+------------------
+
+* Use NewRelic's "stoplight" to determine monitor health.
+
 0.3.0 (2017-05-25)
 ------------------
 
