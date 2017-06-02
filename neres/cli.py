@@ -148,15 +148,25 @@ def get_monitor(ctx, monitor, raw):
         print(json.dumps(monitor))
         return
 
+    severity = monitor.get('severity', 0)
+    if severity == 2:
+        health = click.style(u'✔', fg='green')
+    elif severity == 1:
+        health = click.style(u'❢', fg='yellow')
+    else:
+        health = click.style(u'✖', fg='red')
+    monitor['health'] = health
+
     status = monitor['status'].lower()
     if status in ('muted', 'disabled'):
-        status = click.style(u'❢', fg='yellow')
+        status = click.style(u'❢ {}'.format(status), fg='yellow')
     else:
-        status = click.style(u'✔', fg='green')
+        status = click.style(u'✔ OK', fg='green')
 
     data = [
         ['Monitor', monitor['id']],
         ['Status', status],
+        ['Health', health],
         ['Name', monitor['name']],
         ['URI', monitor['uri']],
         ['Type', monitor['type']],
@@ -274,10 +284,10 @@ def list_monitors(ctx, ids_only, raw):
     ]]
 
     for monitor in monitors:
-        success_ratio = monitor.get('success_ratio', 0)
-        if success_ratio == 1.0:
+        severity = monitor.get('severity', 0)
+        if severity == 2:
             health = click.style(u'✔', fg='green')
-        elif success_ratio > 0.95:
+        elif severity == 1:
             health = click.style(u'❢', fg='yellow')
         else:
             health = click.style(u'✖', fg='red')

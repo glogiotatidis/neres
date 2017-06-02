@@ -64,6 +64,12 @@ def get_monitors(account):
     response.raise_for_status()
     data = response.json()
 
+    for monitor in data:
+        url = urls.MONITOR_STOPLIGHT.format(account=account, monitor=monitor['id'])
+        response = session.get(url)
+        response.raise_for_status()
+        monitor.update(response.json())
+
     # sort data by name
     data = sorted(data, key=lambda x: x['name'])
 
@@ -96,7 +102,15 @@ def get_monitor(account, monitor):
     response = session.get(url)
     response.raise_for_status()
 
-    return response.json()
+    data = response.json()
+
+    # get stoplight status
+    url = urls.MONITOR_STOPLIGHT.format(account=account, monitor=monitor)
+    response = session.get(url)
+    response.raise_for_status()
+
+    data.update(response.json())
+    return data
 
 
 def update_monitor(account, monitor, *args, **kwargs):
