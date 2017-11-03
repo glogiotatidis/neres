@@ -9,15 +9,16 @@ NeReS is a cli tool to manage `NewRelic Synthetics
 and doesn't use the Synthetics API since that's only available to the Pro
 accounts.
 
-Use the tools you can:
+With this tool you can:
 
 -  List all your monitors, including their success rate, locations,
    notifications etc.
 -  Create, update and delete monitors
--  List available locations for monitor installation
+-  List available locations for monitor installation and
+-  everything else available though the Web console.
 
-Everything you can do using the Web console is supported and provided to your
-shell prompt.
+|image3|
+
 
 Installation
 ------------
@@ -199,3 +200,5 @@ project template.
 .. |image0| image:: https://img.shields.io/pypi/v/neres.svg
 .. |image1| image:: https://travis-ci.org/glogiotatidis/neres.svg?branch=master
 .. |image2| image:: https://pyup.io/repos/github/glogiotatidis/neres/shield.svg
+.. |image3| image:: https://raw.githubusercontent.com/glogiotatidis/neres/asciinema/asciinema-demo.gif
+              :target: https://asciinema.org/a/145685
