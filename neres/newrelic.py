@@ -59,16 +59,20 @@ def login(email, password):
 
 
 def get_monitors(account):
-    url = urls.MONITORS.format(account=account)
+    url = urls.MONITORS_V2.format(account=account)
     response = session.get(url)
     response.raise_for_status()
-    data = response.json()
+    data = response.json().get('data')
 
     for monitor in data:
+        # Fetch monitor stoplight
         url = urls.MONITOR_STOPLIGHT.format(account=account, monitor=monitor['id'])
         response = session.get(url)
         response.raise_for_status()
         monitor.update(response.json())
+
+        # Fetch monitor locations.
+        monitor.update(get_monitor(account, monitor['id']))
 
     # sort data by name
     data = sorted(data, key=lambda x: x['name'])
