@@ -2,4 +2,4 @@
 
 __author__ = """Giorgos Logiotatidis"""
 __email__ = 'giorgos@sealabs.net'
-__version__ = '0.4.0'
+__version__ = '0.4.1'
