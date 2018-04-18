@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import pip
 from setuptools import setup
 
 with open('README.rst') as readme_file:
@@ -9,16 +8,21 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
+try:
+    from pip import req, download
+except ImportError:
+    from pip._internal import req, download
+
 
 requirements = [str(item.req) for item in
-                pip.req.parse_requirements('requirements.txt',
-                                           session=pip.download.PipSession())
+                req.parse_requirements('requirements.txt',
+                                       session=download.PipSession())
                 if item.req]
 
 test_requirements = [
     str(item.req) for item in
-    pip.req.parse_requirements('requirements_dev.txt',
-                               session=pip.download.PipSession())
+    req.parse_requirements('requirements_dev.txt',
+                           session=download.PipSession())
     if item.req]
 
 
