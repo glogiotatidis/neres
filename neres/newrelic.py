@@ -273,9 +273,9 @@ def get_accounts():
     response = session.get(urls.SYNTHETICS)
     response.raise_for_status()
 
-    accountId = re.search(b'"accountId":(\d+)', response.content).groups()[0]
+    accountId = re.search(r'"accountId":(\d+)', response.content.decode('utf-8')).groups()[0]
 
-    response = session.get(urls.ACCOUNT_INFO.format(account=accountId.decode('utf-8')))
+    response = session.get(urls.ACCOUNT_INFO.format(account=accountId))
     response.raise_for_status()
 
     return response.json().get('accountList')
