@@ -1,7 +1,7 @@
 flake8==3.7.7 \
     --hash=sha256:83905eadba99f73fbfe966598aaf1682b3eb6755d2263c5b33a4e8367d60b0d1 \
     --hash=sha256:b907a26dcf5580753d8f80f1be0ec1d5c45b719f7bac441120793d1a70b03f12
-pytest==4.4.1 \
+pytest==4.4.2 \
     --hash=sha256:66f332ae62593b874a648b10a8cb106bfdacd2c6288ed7dec3713c3a808a6017 \
     --hash=sha256:b70696ebd1a5e6b627e7e3ac1365a4bc60aaf3495e843c1e70448966c5224cab
 pyflakes==2.1.1 \
