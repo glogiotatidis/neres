@@ -1,6 +1,6 @@
 python-decouple==3.1 \
     --hash=sha256:99834c9ff7ce5c5b2f4a18bc0880753e54ea3aaabc3cfb16961a92d5046665df
-requests==2.21.0 \
+requests==2.22.0 \
     --hash=sha256:a84b8c9ab6239b578f22d1c21d51b696dcfe004032bb80ea832398d6909d7279 \
     --hash=sha256:99dcfdaaeb17caf6e526f32b6a7b780461512ab3f1d992187801694cba42770c
 click==7.0 \
