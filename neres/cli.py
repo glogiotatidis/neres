@@ -328,7 +328,7 @@ def list_monitors(ctx, ids_only, raw):
 
     table.justify_columns[3] = 'left'
 
-    print(table.table)
+    print(table.table.encode('utf-8'))
 
 
 @click.command(help='Open monitor in Web browser')
