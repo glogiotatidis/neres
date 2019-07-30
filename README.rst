@@ -199,6 +199,5 @@ project template.
 
 .. |image0| image:: https://img.shields.io/pypi/v/neres.svg
 .. |image1| image:: https://travis-ci.org/glogiotatidis/neres.svg?branch=master
-.. |image2| image:: https://pyup.io/repos/github/glogiotatidis/neres/shield.svg
 .. |image3| image:: https://asciinema.org/a/145685.png
               :target: https://asciinema.org/a/145685
