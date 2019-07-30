@@ -2,11 +2,10 @@
 import re
 import os
 from collections import OrderedDict
+from http.cookiejar import LWPCookieJar
 
 import json
-import six
 import requests
-from six.moves.http_cookiejar import LWPCookieJar
 
 import neres.urls as urls
 import neres.session as session
@@ -146,13 +145,13 @@ def update_monitor(account, monitor, *args, **kwargs):
 
         values = kwargs.get('add_{}'.format(prop))
         if values:
-            if isinstance(values, six.string_types):
+            if isinstance(values, str):
                 values = [values]
             data[prop] = list(set(data[prop] + list(values)))
 
         values = kwargs.get('remove_{}'.format(prop))
         if values:
-            if isinstance(values, six.string_types):
+            if isinstance(values, str):
                 prop = [values]
             data[prop] = list(set(data[prop]) - set(values))
 
@@ -221,10 +220,10 @@ def create_monitor(account, name, uri, frequency, locations, emails=[],
                    validation_string='', bypass_head_request=False,
                    verify_ssl=False, redirect_is_failure=False,
                    slaThreshold=7):
-    if isinstance(locations, six.string_types):
+    if isinstance(locations, str):
         locations = [locations]
 
-    if isinstance(emails, six.string_types):
+    if isinstance(emails, str):
         emails = [emails]
 
     if validation_string and not bypass_head_request:
