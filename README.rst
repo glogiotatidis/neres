@@ -1,7 +1,7 @@
 NewRelic Synthetics (unofficial) CLI (NeReS)
 ============================================
 
-|image0| |image1| |image2|
+|image0| |image1|
 
 NeReS is a cli tool to manage `NewRelic Synthetics
 <https://synthetics.newrelic.com/>`__ monitors with a Synthetics Lite account
