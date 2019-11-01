@@ -31,9 +31,9 @@ PyYAML==5.1.2 \
     --hash=sha256:01adf0b6c6f61bd11af6e10ca52b7d4057dd0be0343eb9283c878cf3af56aee4
 yamlordereddictloader==0.4.0 \
     --hash=sha256:7f30f0b99ea3f877f7cb340c570921fa9d639b7f69cba18be051e27f8de2080e
-certifi==2018.10.15 \
-    --hash=sha256:339dc09518b07e2fa7eda5450740925974815557727d6bd35d319c1524a04a4c \
-    --hash=sha256:6d58c986d22b038c8c0df30d639f23a3e6d172a05c3583e766f4c0b785c0986a
+certifi==2019.9.11 \
+    --hash=sha256:fd7c7c74727ddcf00e9acd26bba8da604ffec95bf1c2144e67aff7a8b50e6cef \
+    --hash=sha256:e4f3620cfea4f83eedc95b24abd9cd56f3c4b146dd0177e83a21b4eb49e21e50
 chardet==3.0.4 \
     --hash=sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691 \
     --hash=sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae
