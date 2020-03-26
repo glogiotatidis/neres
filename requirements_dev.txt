@@ -7,7 +7,7 @@ pytest==5.4.1 \
 pyflakes==2.1.1 \
     --hash=sha256:17dbeb2e3f4d772725c777fabc446d5634d1038f234e77343108ce445ea69ce0 \
     --hash=sha256:d976835886f8c5b31d47970ed689944a0262b5f3afa00a5a7b4dc81e5449f8a2
-configparser==4.0.2 \
+configparser==5.0.0 \
     --hash=sha256:254c1d9c79f60c45dfde850850883d5aaa7f19a23f13561243a050d5a7c3fe4c \
     --hash=sha256:c7d282687a5308319bf3d2e7706e575c635b0a470342641c93bea0ea3b5331df
 pycodestyle==2.5.0 \
