@@ -6,8 +6,9 @@ requests==2.22.0 \
 click==7.0 \
     --hash=sha256:2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13 \
     --hash=sha256:5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7
-humanize==0.5.1 \
-    --hash=sha256:a43f57115831ac7c70de098e6ac46ac13be00d69abbf60bdcac251344785bb19
+humanize==2.2.0 \
+    --hash=sha256:0b3157df0f3fcdcb7611180d305a23fd4b6290eb23586e058762f8576348fbab \
+    --hash=sha256:de8ef6ffee618a9d369b3d1fb1359780ccaa2cc76a0e777c6ff21f04d19a0eb8
 terminaltables==3.1.0 \
     --hash=sha256:f3eb0eb92e3833972ac36796293ca0906e998dc3be91fbe1f8615b331b853b81
 enum34==1.1.6 \
