@@ -1,4 +1,4 @@
-python-decouple==3.3 \
+python-decouple==3.4 \
     --hash=sha256:55c546b85b0c47a15a47a4312d451a437f7344a9be3e001660bccd93b637de95
 click==7.1.2 \
     --hash=sha256:2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13 \
