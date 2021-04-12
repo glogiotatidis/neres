@@ -6,7 +6,7 @@ click==7.1.2 \
 requests==2.25.1 \
     --hash=sha256:43999036bfa82904b6af1d99e4882b560e5e2c68e5c4b0aa03b655f3d7d73fee \
     --hash=sha256:b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6
-humanize==3.4.0 \
+humanize==3.4.1 \
     --hash=sha256:bc2a1ff065977011de2bc36197a4b14730c54bfc46ab12a153376684573a2dab \
     --hash=sha256:98b7ac9d1a70ad62175c8e0dd44beebbd92418727fc4e214468dfb2baa8ebfb5
 terminaltables==3.1.0 \
