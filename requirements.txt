@@ -6,9 +6,9 @@ click==7.0 \
 requests==2.23.0 \
     --hash=sha256:43999036bfa82904b6af1d99e4882b560e5e2c68e5c4b0aa03b655f3d7d73fee \
     --hash=sha256:b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6
-humanize==2.3.0 \
-    --hash=sha256:bc2a1ff065977011de2bc36197a4b14730c54bfc46ab12a153376684573a2dab \
-    --hash=sha256:98b7ac9d1a70ad62175c8e0dd44beebbd92418727fc4e214468dfb2baa8ebfb5
+humanize==4.4.0 \
+    --hash=sha256:8830ebf2d65d0395c1bd4c79189ad71e023f277c2c7ae00f263124432e6f2ffa \
+    --hash=sha256:efb2584565cc86b7ea87a977a15066de34cdedaf341b11c851cfcfd2b964779c
 terminaltables==3.1.0 \
     --hash=sha256:f3eb0eb92e3833972ac36796293ca0906e998dc3be91fbe1f8615b331b853b81
 PyYAML==5.3.1 \
